@@ -16,21 +16,35 @@ var roomEngine = {
 
     var maxExtensions = { 1:0, 2:5, 3:10, 4:20, 5:50, 6:40, 7:50, 8:60 };
     var extensions = room.find(FIND_MY_STRUCTURES, {filter: STRUCTURE_EXTENSION});
-    var pos = room.getPositionAt(0,0);
+    var constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+
+    var pos = new RoomPosition( 0, 0, room.name);
     if ( extensions.length == 0) {
       var spawns = room.find(FIND_MY_SPAWNS);
-      pos = spawns[0].pos;
+      pos.x = spawns[0].pos.x;
+      pos.y = spawns[0].pos.y;
     }
     else {
-      for ( e in extensions) {
-        console.log(extensions[e]);
+      for ( let e in extensions) {
+        pos.x = e.pos.x;
+        pos.y = e.pos.y;
       }
     }
+    pos.x -= 1;
+    pos.y -= 1;
 
-    pos.x -= 10;
-    pos.y -= 10;
-    for ( let e = extensions.length; e < maxExtensions[room.controller.level]; e++ ) {
-      room.createConstructionSite(pos, STRUCTURE_EXTENSION);
+    //assume all construction sites are for extensions for now (training)
+    for ( let e = extensions.length + constructionSites; e < maxExtensions[room.controller.level]; e++ ) {
+      pos.x -= 1;
+      pos.y -= 1;
+      console.log("Creating extension construction site at " + pos);
+      let err = room.createConstructionSite(pos, STRUCTURE_EXTENSION);
+      if ( err == OK) {
+        console.log("Extension created at " + pos);
+      }
+      else {
+        console.log("Create extension failed: " + err);
+      }
     }
 
     return true;
