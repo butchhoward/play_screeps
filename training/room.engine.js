@@ -41,6 +41,7 @@ var roomEngine = {
       let err = room.createConstructionSite(pos, STRUCTURE_EXTENSION);
       if ( err == OK) {
         console.log("Extension created at " + pos);
+        Memory.spawnEngine.extensionSites++;
       }
       else {
         console.log("Create extension failed: " + err);
