@@ -153,7 +153,7 @@ function spawnMinimums(spawn1) {
   } else if (Memory.spawnEngine.builders < Memory.spawnEngine.minBuilders) {
     spawnBuilder(spawn1);
   } else if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.minHeavyBuilders && spawn1.room.energyAvailable > 400) {
-    spwanHeavyBuilder(spawn1);
+    spawnHeavyBuilder(spawn1);
   }
   else {
     return false;
