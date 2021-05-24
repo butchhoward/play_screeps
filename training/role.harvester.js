@@ -31,7 +31,7 @@ function setCreepTargets(creep) {
   var creepData = Memory.creeps[creep.name];
 
   if (!('harvestSourceId' in creepData) || creepData.harvestSourceId == undefined) {
-    creepData.harvestSourceId = sourcePicker.findPreferredSource(creep.room);
+    creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
   }
 
   if (!('transferTargetId' in creepData) || creepData.transferTargetId == undefined) {

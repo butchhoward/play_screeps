@@ -32,9 +32,40 @@ function isSourceNearKeeper(room, sourceId) {
 
 var sourcePicker = {
 
+  findSourceNear: function (room, pos) {
+    var sources = room.find(FIND_SOURCES);
+    sources = _.sortBy(sources, s => pos.getRangeTo(s));
+    for( let s in sources) {
+      let id = sources[s].id;
+      if (!isSourceNearKeeper(room, id)) {
+        return id;
+      }
+    }
+    if (sources.length > 0) {
+      return sources[0].id;
+    }
+
+    return undefined;
+  },
+
+  findPreferredSourceNear: function (room, pos) {
+    var sources = room.find(FIND_SOURCES_ACTIVE);
+    sources = _.sortBy(sources, s => pos.getRangeTo(s));
+    for( let s in sources) {
+      let id = sources[s].id;
+      if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 8) {
+        return id;
+      }
+    }
+    if (sources.length > 0) {
+      return sources[0].id;
+    }
+
+    return undefined;
+  },
 
   findPreferredSource: function (room) {
-    var sources = room.find(FIND_SOURCES);
+    var sources = room.find(FIND_SOURCES_ACTIVE);
     for( let s in sources) {
       let id = sources[s].id;
       if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 8) {
@@ -67,7 +98,13 @@ var sourcePicker = {
   },
 
   findExtensionsUnderConstruction: function (room) {
-    var targets = room.find(FIND_CONSTRUCTION_SITES);
+    var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
+      filter: (site) => {
+        return ( site.structureType == STRUCTURE_EXTENSION &&
+                 site.progress < site.progressTotal
+        );
+      },
+    });
     if (targets.length > 0) {
       return targets[0].id;
     }
@@ -76,7 +113,13 @@ var sourcePicker = {
   },
 
   findRoadsUnderConstruction: function (room) {
-    var targets = room.find(FIND_CONSTRUCTION_SITES);
+    var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
+      filter: (site) => {
+        return ( site.structureType == STRUCTURE_ROAD &&
+                 site.progress < site.progressTotal
+        );
+      },
+    });
     if (targets.length > 0) {
       return targets[0].id;
     }

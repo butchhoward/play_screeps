@@ -22,7 +22,7 @@ var roleUpgrader = {
       }
     } else {
       if ( !('harvestSourceId' in creepData) || creepData.harvestSourceId == undefined) {
-        creepData.harvestSourceId = sourcePicker.findPreferredSource(creep.room);
+        creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
       }
       const source = Game.getObjectById(creepData.harvestSourceId);
       if (source != undefined) {
