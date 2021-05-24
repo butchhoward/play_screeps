@@ -1,6 +1,6 @@
 function cleanupAfterCreep(name) {
   let creepData = Memory.creeps[name];
-  switch (creepData["role"]) {
+  switch (creepData.role) {
     case "builder":
       if (creepData.heavy) {
         Memory.spawnEngine.heavyBuilders--;
@@ -19,8 +19,10 @@ function cleanupAfterCreep(name) {
 
 function recordAddedCreep(name) {
   let creepData = Memory.creeps[name];
-  switch (creepData["role"]) {
+  Memory.spawnEngine.lastType = creepData.role;
+  switch (creepData.role) {
     case "builder":
+      Memory.spawnEngine.nextType = "upgrader";
       if (creepData.heavy) {
         Memory.spawnEngine.heavyBuilders++;
       } else {
@@ -28,9 +30,11 @@ function recordAddedCreep(name) {
       }
       break;
     case "harvester":
+      Memory.spawnEngine.nextType = "builder";
       Memory.spawnEngine.harvesters++;
       break;
     case "upgrader":
+      Memory.spawnEngine.nextType = "harvester";
       Memory.spawnEngine.upgraders++;
       break;
   }
@@ -84,7 +88,7 @@ function spawnTheCreeps(spawn1) {
   var maxHarvesters = Memory.spawnEngine.maxHarvesters;
   var maxBuilders = Memory.spawnEngine.maxBuilders;
   var maxUpgraders = Memory.spawnEngine.maxUpgraders;
-  var maxHeavyHarvesters = Memory.spawnEngine.maxHeavyHarvesters;
+  var maxHeavyBuilders = Memory.spawnEngine.maxHeavyBuilders;
 
   var availableEnergy = spawn1.room.energyAvailable;
   var roomEnergyCapacity = spawn1.room.energyCapacityAvailable;
@@ -120,16 +124,16 @@ function spawnTheCreeps(spawn1) {
           spawnCreep(spawn1, [WORK, CARRY, MOVE], {
             memory: { role: "upgrader" },
           });
-        } else if (builders < maxBuilders) {
-          spawnCreep(spawn1, [WORK, CARRY, MOVE], {
-            memory: { role: "builder", building: false, heavy: false },
-          });
         } else if (
-          heavyBuilders < maxHeavyHarvesters &&
+          heavyBuilders < maxHeavyBuilders &&
           availableEnergy > 400
         ) {
           spawnCreep(spawn1, [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], {
             memory: { role: "builder", building: false, heavy: true },
+          });
+        } else if (builders < maxBuilders) {
+          spawnCreep(spawn1, [WORK, CARRY, MOVE], {
+            memory: { role: "builder", building: false, heavy: false },
           });
         }
       }
@@ -161,14 +165,14 @@ var spawnEngine = {
       var constructionSites = spawn1.room.find(FIND_MY_CONSTRUCTION_SITES);
 
       Memory.spawnEngine = {
-        minHarvesters: 1,
-        minBuilders: 1,
-        minUpgraders: 1,
+        minHarvesters: 2,
+        minBuilders: 2,
+        minUpgraders: 2,
         minHeavyHarvesters: 0,
-        maxHarvesters: 5,
-        maxBuilders: 5,
-        maxUpgraders: 5,
-        maxHeavyHarvesters: 5,
+        maxHarvesters: 100,
+        maxBuilders: 100,
+        maxUpgraders: 100,
+        maxHeavyBuilders: 25,
 
         harvesters: harvesters.length,
         builders: builders.length,
