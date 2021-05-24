@@ -23,7 +23,7 @@ function goBuildSomething(creepData, creep) {
   }
 
   if (!('buildTargetId' in creepData) || creepData.buildTargetId == undefined) {
-    creepData.buildTargetId = sourcePicker.findExtensionsUnderConstruction(creep.room);
+    creepData.buildTargetId = sourcePicker.findAnExtensionUnderConstruction(creep.room);
   }
 
   if (!('buildTargetId' in creepData) || creepData.buildTargetId != undefined) {

@@ -16,6 +16,7 @@ Prioritizes work:
 
 Does not:
 * build roads,walls,etc. (unless manually placed construction sites)
+  * Does create a Main Roads between spawn, controller, and nearest sources
 * defend against attackers
 * any of the advanced skills (mining, manufacturing, trading, etc.)
 
@@ -26,5 +27,17 @@ Todo:
 
 * Target specific creeps to tasks (instead of classes of creeps to types of tasks)
 * Limit creeps harvesting from source based on source accessibility limtes (e.g. Training Sim source can only support 3 harvesters)
+  * Default to just setting a hard limit of 8 for now
+* Change Extension creation so that they are placed closer to the nearest Source instead of by the Spawn
+* Change so that not dpendent on the spawn being named "Spawn1"
+* Build Main Roads 2- or 3- wide (single width at least lays a track)
 
-
+```
+.................
+.................
+.......*.........
+.................
+.........$$$.....
+.........$$......
+.................
+```

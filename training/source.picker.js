@@ -30,6 +30,18 @@ function isSourceNearKeeper(room, sourceId) {
   return false;
 }
 
+function findExtensionsUnderConstruction(room) {
+  var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
+    filter: (site) => {
+      return ( site.structureType == STRUCTURE_EXTENSION &&
+               site.progress < site.progressTotal
+      );
+    },
+  });
+  return targets;
+}
+
+
 var sourcePicker = {
 
   findSourceNear: function (room, pos) {
@@ -97,14 +109,10 @@ var sourcePicker = {
     return undefined;
   },
 
-  findExtensionsUnderConstruction: function (room) {
-    var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
-      filter: (site) => {
-        return ( site.structureType == STRUCTURE_EXTENSION &&
-                 site.progress < site.progressTotal
-        );
-      },
-    });
+  findExtensionsUnderConstruction: findExtensionsUnderConstruction,
+
+  findAnExtensionUnderConstruction: function (room) {
+    var targets = findExtensionsUnderConstruction(room);
     if (targets.length > 0) {
       return targets[0].id;
     }

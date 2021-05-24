@@ -52,7 +52,6 @@ function buildExtensions(room) {
   pos.x -= 1;
   pos.y -= 1;
 
-  //assume all construction sites are for extensions for now (training)
   for (let e = extensions.length + constructionSites; e < maxExtensions[room.controller.level]; e++) {
     pos.x -= 1;
     pos.y -= 1;
@@ -60,7 +59,6 @@ function buildExtensions(room) {
     let err = room.createConstructionSite(pos, STRUCTURE_EXTENSION);
     if (err == OK) {
       console.log("Extension created at " + pos);
-      Memory.spawnEngine.extensionSites++;
     } else {
       console.log("Create extension failed: " + err);
     }
