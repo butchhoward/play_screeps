@@ -74,7 +74,7 @@ function spawnCreep(spawn, body, opts) {
   return err;
 }
 
-function spwanHeavyBuilder(spawn1) {
+function spawnHeavyBuilder(spawn1) {
   spawnCreep(spawn1, [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], {
     memory: { role: "builder", building: false, heavy: true },
   });
@@ -98,10 +98,10 @@ function spawnHarvester(spawn1) {
   });
 }
 
-function canSpawn(room, spawner) {
-  switch (spawner.role) {
+function canSpawn(room, spawnerType) {
+  switch (spawnerType) {
     case "builder":
-      if (Memory.spawnEngine.builders < Memory.spawnEngine.maxBuilders && >= 200) {
+      if (Memory.spawnEngine.builders < Memory.spawnEngine.maxBuilders && room.energyAvailable >= 200) {
         return true;
       }
       break;
@@ -125,30 +125,30 @@ function canSpawn(room, spawner) {
   return false;
 }
 
-function getNextSpawner() {
-  const spawniters = {
-    harvester: { spawner: spawnHarvester, next: "builder" },
-    builder: { spawner: spawnBuilder, next: "upgrader" },
-    upgrader: { spawner: spawnUpgrader, next: "heavyBuilder" },
-    heavyBuilder: { spawner: spawnHeavyBuilder, next: "harvester" },
-  };
+const spawniters = {
+  harvester: { spawner: spawnHarvester, next: "builder" },
+  builder: { spawner: spawnBuilder, next: "upgrader" },
+  upgrader: { spawner: spawnUpgrader, next: "heavyBuilder" },
+  heavyBuilder: { spawner: spawnHeavyBuilder, next: "harvester" },
+};
 
+function getNextSpawner() {
   let current = spawniters[Memory.spawnEngine.lastType];
   return spawniters[current.next];
 }
 
 function spawnMinimums(spawn1) {
-  if ( availableEnergy < 200 ) {
+  if ( spawn1.room.energyAvailable < 200 ) {
     return false;
   }
 
-  if (harvesters < minHarvesters) {
+  if (Memory.spawnEngine.harvesters < Memory.spawnEngine.minHarvesters) {
     spawnHarvester(spawn1);
-  } else if (upgraders < minUpgraders) {
+  } else if (Memory.spawnEngine.upgraders < Memory.spawnEngine.minUpgraders) {
     spawnUpgrader(spawn1);
-  } else if (builders < minBuilders) {
+  } else if (Memory.spawnEngine.builders < Memory.spawnEngine.minBuilders) {
     spawnBuilder(spawn1);
-  } else if (heavyBuilders < minHeavyHarvesters && availableEnergy > 400) {
+  } else if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.minHeavyHarvesters && room.energyAvailable > 400) {
     spwanHeavyBuilder(spawn1);
   }
   else {
@@ -159,9 +159,10 @@ function spawnMinimums(spawn1) {
 }
 
 function spawnMaximums(spawn1) {  
-  var spawner = getNextSpawner();
-  if (canSpawn(spawner)) {
-    spawner.spawner(spawn1);
+  var spawnerType = getNextSpawner();
+  if (canSpawn(spawnerType)) {
+    var spawniter = spawniters[spawnerType];
+    spawniter.spawner(spawn1);
   }
   else {
     const defaultSpawner = { spawner: spawnHarvester, next: "builder" };
