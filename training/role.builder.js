@@ -40,13 +40,19 @@ function goBuildSomething(creepData, creep) {
 
   if (!('buildTargetId' in creepData) || creepData.buildTargetId != undefined) {
     const target = Game.getObjectById(creepData.buildTargetId);
-    if (creep.build(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target, {
-        visualizePathStyle: { stroke: "#ffccbb" },
-      });
+    if (target === undefined )
+    {
+      creepData.buildTargetId = undefined;
+      creepData.building = false;
+    }
+    else {
+      if (creep.build(target) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, {
+          visualizePathStyle: { stroke: "#ffccbb" },
+        });
+      }
     }
   } else {
-    console.log(creep.name + " redirecting to roleUpgrader");
     roleUpgrader.run(creep);
   }
 }

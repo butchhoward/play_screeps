@@ -1,3 +1,32 @@
+
+// function Creeper() {
+//   this.name = '';
+//   this.role = 'creeper';
+//   this.spawnFrom = undefined;
+//   this.tasks = []
+
+//   this.spawn = function() {
+//     var newName = this.role + Game.time;
+//     console.log("Spawning new Creep: " + newName);
+//     let err = this.spawnFrom.spawnCreep(body, newName, opts);
+//     if (err != OK) {
+//       console.log("failed to spawn " + newName + " : " + err);
+//     } else {
+//       recordAddedCreep(newName);
+//     }
+//     return err;
+//   }
+  
+// }
+
+// function HarvesterCreep() {
+//   Creeper.call(this);
+//   this.body = [WORK, WORK, CARRY, MOVE, MOVE];
+// }
+// HarvesterCreep.prototype = Object.create(Creeper.prototype);
+// HarvesterCreep.prototype.constructor = HarvesterCreep;
+
+
 function cleanupAfterCreep(name) {
   let creepData = Memory.creeps[name];
   switch (creepData.role) {

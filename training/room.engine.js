@@ -31,12 +31,12 @@ function buildExtensions(room) {
   });
   var constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: (site) => {
-      return site.structureType == STRUCTURE_EXTENSION && site.progress < site.progressTotal;
+      return site.structureType == STRUCTURE_EXTENSION;
     },
   });
 
   var pos = new RoomPosition(0, 0, room.name);
-  if (extensions.length == 0) {
+  if (extensions.length === 0) {
     var spawns = room.find(FIND_MY_SPAWNS);
     if (spawns.length === 0) {
       return;
@@ -45,8 +45,8 @@ function buildExtensions(room) {
     pos.y = spawns[0].pos.y;
   } else {
     for (let e in extensions) {
-      pos.x = e.pos.x;
-      pos.y = e.pos.y;
+      pos.x = extensions[e].pos.x;
+      pos.y = extensions[e].pos.y;
     }
   }
   pos.x -= 1;
@@ -118,7 +118,7 @@ var roomEngine = {
       return false;
     }
 
-    buildExtensions(room);
+    // buildExtensions(room);
     buildMainRoads(room);
 
     return true;

@@ -21,6 +21,9 @@ function directCreepToWork(creep) {
           creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa55" } });
         }
       }
+      else {
+        creepData.transferTargetId = undefined;
+      }
     } else {
       roleBuilder.run(creep);
     }

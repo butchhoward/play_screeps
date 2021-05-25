@@ -25,7 +25,11 @@ var roleUpgrader = {
         creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
       }
       const source = Game.getObjectById(creepData.harvestSourceId);
-      if (source != undefined) {
+      if (source === undefined )
+      {
+        creepData.harvestSourceId = undefined;
+      }
+      else {
         if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
           creep.moveTo(source, { visualizePathStyle: { stroke: "#ff8822" } });
         }
