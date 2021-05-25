@@ -91,38 +91,52 @@ function announceSpawning(spawn1) {
   }
 }
 
+function energyNeeded(body) {
+  const costs = { 'move': 50, 'work': 100, 'carry': 50, 'attack': 80, 'ranged_attack': 150, 'heal': 250, 'claim': 600, 'tough': 10 };
+
+  var needed = 0;
+  for (let w of body) {
+    needed += costs[w];
+  }
+  return needed;
+}
+
 function spawnCreep(spawn, body, opts) {
   var newName = opts.memory.role + Game.time;
   console.log("Spawning new Creep: " + newName);
   let err = spawn.spawnCreep(body, newName, opts);
   if (err != OK) {
-    console.log("failed to spawn " + newName + " : " + err);
+    console.log(`failed to spawn ${newName} (${err}) body:[${body}] energyAvailable: ${spawn.room.energyAvailable}`);
   } else {
     recordAddedCreep(newName);
   }
   return err;
 }
 
+const HEAVYBUILDER_BODY= [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
 function spawnHeavyBuilder(spawn1) {
-  spawnCreep(spawn1, [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE], {
+  spawnCreep(spawn1, HEAVYBUILDER_BODY, {
     memory: { role: "builder", building: false, heavy: true },
   });
 }
 
+const BUILDER_BODY=[WORK, CARRY, MOVE, MOVE];
 function spawnBuilder(spawn1) {
-  spawnCreep(spawn1, [WORK, CARRY, MOVE, MOVE], {
+  spawnCreep(spawn1, BUILDER_BODY, {
     memory: { role: "builder", building: false, heavy: false },
   });
 }
 
+const UPGRADER_BODY=[WORK, CARRY, MOVE, MOVE];
 function spawnUpgrader(spawn1) {
-  spawnCreep(spawn1, [WORK, CARRY, MOVE, MOVE], {
+  spawnCreep(spawn1, UPGRADER_BODY, {
     memory: { role: "upgrader" },
   });
 }
 
+const HARVESTER_BODY=[WORK, WORK, CARRY, MOVE, MOVE];
 function spawnHarvester(spawn1) {
-  spawnCreep(spawn1, [WORK, WORK, CARRY, MOVE, MOVE], {
+  spawnCreep(spawn1, HARVESTER_BODY, {
     memory: { role: "harvester" },
   });
 }
@@ -130,22 +144,22 @@ function spawnHarvester(spawn1) {
 function canSpawn(room, spawnerType) {
   switch (spawnerType) {
     case "builder":
-      if (Memory.spawnEngine.builders < Memory.spawnEngine.maxBuilders && room.energyAvailable >= 250) {
+      if (Memory.spawnEngine.builders < Memory.spawnEngine.maxBuilders && room.energyAvailable >= energyNeeded(BUILDER_BODY)) {
         return true;
       }
       break;
     case "heavyBuilder":
-      if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.maxHeavyBuilders && room.energyAvailable >= 450) {
+      if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.maxHeavyBuilders && room.energyAvailable >= energyNeeded(HEAVYBUILDER_BODY)) {
         return true;
       }
       break;
     case "harvester":
-      if (Memory.spawnEngine.harvesters < Memory.spawnEngine.maxHarvesters && room.energyAvailable >= 300) {
+      if (Memory.spawnEngine.harvesters < Memory.spawnEngine.maxHarvesters && room.energyAvailable >= energyNeeded(HARVESTER_BODY)) {
         return true;
       }
       break;
     case "upgrader":
-      if (Memory.spawnEngine.upgraders < Memory.spawnEngine.maxUpgraders && room.energyAvailable >= 250) {
+      if (Memory.spawnEngine.upgraders < Memory.spawnEngine.maxUpgraders && room.energyAvailable >= energyNeeded(UPGRADER_BODY)) {
         return true;
       }
       break;
@@ -171,20 +185,27 @@ function getNextSpawner() {
 }
 
 function spawnMinimums(spawn1) {
-  if ( spawn1.room.energyAvailable < 250 ) {
-    return false;
-  }
-
-  if (Memory.spawnEngine.harvesters < Memory.spawnEngine.minHarvesters) {
+  if (
+    Memory.spawnEngine.harvesters < Memory.spawnEngine.minHarvesters &&
+    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
+  ) {
     spawnHarvester(spawn1);
-  } else if (Memory.spawnEngine.upgraders < Memory.spawnEngine.minUpgraders) {
+  } else if (
+    Memory.spawnEngine.upgraders < Memory.spawnEngine.minUpgraders &&
+    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
+  ) {
     spawnUpgrader(spawn1);
-  } else if (Memory.spawnEngine.builders < Memory.spawnEngine.minBuilders) {
+  } else if (
+    Memory.spawnEngine.builders < Memory.spawnEngine.minBuilders &&
+    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
+  ) {
     spawnBuilder(spawn1);
-  } else if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.minHeavyBuilders && spawn1.room.energyAvailable > 450) {
+  } else if (
+    Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.minHeavyBuilders &&
+    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
+  ) {
     spawnHeavyBuilder(spawn1);
-  }
-  else {
+  } else {
     return false;
   }
 

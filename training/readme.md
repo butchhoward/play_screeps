@@ -1,5 +1,14 @@
 # Ponderings on Screeps automation
 
+
+## Handy Console Commands
+
+```
+Game.spawns['Spawn1'].spawnCreep([MOVE,WORK,CARRY], 'UpgraderManual', {memory: { role: "upgrader" }});
+Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY], 'HarvesterManual2', {memory: { role: "harvester" }});
+Memory.creeps['harvester28389492'].transferTargetId;
+```
+
 ## The Story so Far
 
 Basically started with the tutorial code along with some additional code from [Screeps Nooby Guide video series](https://www.youtube.com/playlist?list=PL0EZQ169YGlor5rzeJEYYPE3tGYT2zGT2) (which code is somewhat out of date, but still useful for learning).

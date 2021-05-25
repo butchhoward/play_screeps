@@ -15,11 +15,18 @@ var roleUpgrader = {
     }
 
     if (creep.memory.upgrading) {
-      if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller, {
-          visualizePathStyle: { stroke: "#ff8866" },
-        });
-      }
+
+      let err = creep.upgradeController(creep.room.controller);
+      switch(err) {
+        case OK:
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.moveTo(creep.room.controller, {visualizePathStyle: { stroke: "#ff8866" },});
+            break;
+        default:
+          break;
+        }
+        
     } else {
       if ( !('harvestSourceId' in creepData) || creepData.harvestSourceId == undefined) {
         creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
