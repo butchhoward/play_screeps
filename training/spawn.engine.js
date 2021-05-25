@@ -32,16 +32,24 @@ function cleanupAfterCreep(name) {
   switch (creepData.role) {
     case "builder":
       if (creepData.heavy) {
-        Memory.spawnEngine.heavyBuilders--;
+        if (Memory.spawnEngine.heavyBuilders > 0) {
+          Memory.spawnEngine.heavyBuilders--;
+        }
       } else {
-        Memory.spawnEngine.builders--;
+        if (Memory.spawnEngine.builders > 0) {
+          Memory.spawnEngine.builders--;
+        }
       }
       break;
     case "harvester":
-      Memory.spawnEngine.harvesters--;
+      if (Memory.spawnEngine.harvesters > 0) {
+        Memory.spawnEngine.harvesters--;
+      }
       break;
     case "upgrader":
-      Memory.spawnEngine.upgraders--;
+      if (Memory.spawnEngine.upgraders > 0) {
+        Memory.spawnEngine.upgraders--;
+      }
       break;
   }
 }
@@ -71,7 +79,7 @@ function cleanDeadCreeps() {
     if (!Game.creeps[name]) {
       cleanupAfterCreep(name);
       delete Memory.creeps[name];
-      console.log("Clearing creep:", name);
+      console.log("Cleaning:", name);
     }
   }
 }
