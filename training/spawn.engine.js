@@ -93,7 +93,7 @@ function spawnUpgrader(spawn1) {
 }
 
 function spawnHarvester(spawn1) {
-  spawnCreep(spawn1, [WORK, CARRY, MOVE, MOVE], {
+  spawnCreep(spawn1, [WORK, WORK, CARRY, MOVE, MOVE], {
     memory: { role: "harvester" },
   });
 }
@@ -111,7 +111,7 @@ function canSpawn(room, spawnerType) {
       }
       break;
     case "harvester":
-      if (Memory.spawnEngine.harvesters < Memory.spawnEngine.maxHarvesters && room.energyAvailable >= 250) {
+      if (Memory.spawnEngine.harvesters < Memory.spawnEngine.maxHarvesters && room.energyAvailable >= 300) {
         return true;
       }
       break;
