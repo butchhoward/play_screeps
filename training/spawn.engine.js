@@ -106,67 +106,80 @@ function spawnCreep(spawn, body, opts) {
   console.log("Spawning new Creep: " + newName);
   let err = spawn.spawnCreep(body, newName, opts);
   if (err != OK) {
-    console.log(`failed to spawn ${newName} (${err}) body:[${body}] energyAvailable: ${spawn.room.energyAvailable}`);
+    console.log(`failed to spawn ${newName} (${err}) need:${energyNeeded(body)} energyAvailable: ${spawn.room.energyAvailable}`);
   } else {
     recordAddedCreep(newName);
   }
   return err;
 }
 
+function reduceBody(body) {
+  //assume similar attributes are together in the Body (i.e. [WORK, WORK, CARRY, MOVE] not [WORK, CARRY, WORK, MOVE])
+  newBody = [...body];
+  counts = _.countBy(newBody);
+  if (counts['work'] > 1) {
+    _.pullAt(newBody,_.indexOf(newBody, 'work'));
+  }
+  else if (counts['move'] > 1) {
+    _.pullAt(newBody,_.indexOf(newBody, 'move'));
+  }
+  else {
+    return { body: newBody, changed: false };
+  }
+
+  return { body: newBody, changed: true };
+}
+
+function spawnSomeKindOfCreep(spawn, limit, body, opts) {
+  if (Memory.spawnEngine.builders >= limit) {
+    return false;
+  }
+
+  var workingBody = [...body];
+  for (;spawn.room.energyAvailable < energyNeeded(workingBody);) {
+    w = reduceBody(workingBody);
+    if (!w.changed) {
+      return false;
+    }
+    workingBody=[...w.body];
+  }
+
+  if ( OK !== spawnCreep(spawn, workingBody, opts))
+  {
+    return false;
+  }
+
+  return true;
+}
+
 const HEAVYBUILDER_BODY= [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
 function spawnHeavyBuilder(spawn1) {
-  spawnCreep(spawn1, HEAVYBUILDER_BODY, {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxHeavyBuilders, HEAVYBUILDER_BODY, {
     memory: { role: "builder", building: false, heavy: true },
   });
 }
 
 const BUILDER_BODY=[WORK, CARRY, MOVE, MOVE];
 function spawnBuilder(spawn1) {
-  spawnCreep(spawn1, BUILDER_BODY, {
-    memory: { role: "builder", building: false, heavy: false },
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxBuilders, BUILDER_BODY, {
+    memory: { role: "builder", building: false, heavy: true },
   });
 }
 
 const UPGRADER_BODY=[WORK, CARRY, MOVE, MOVE];
 function spawnUpgrader(spawn1) {
-  spawnCreep(spawn1, UPGRADER_BODY, {
-    memory: { role: "upgrader" },
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxUpgraders, UPGRADER_BODY, {
+    memory: { role: "upgrader", upgrading: false},
   });
 }
 
 const HARVESTER_BODY=[WORK, WORK, CARRY, MOVE, MOVE];
 function spawnHarvester(spawn1) {
-  spawnCreep(spawn1, HARVESTER_BODY, {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxHarvesters, HARVESTER_BODY, {
     memory: { role: "harvester" },
   });
 }
 
-function canSpawn(room, spawnerType) {
-  switch (spawnerType) {
-    case "builder":
-      if (Memory.spawnEngine.builders < Memory.spawnEngine.maxBuilders && room.energyAvailable >= energyNeeded(BUILDER_BODY)) {
-        return true;
-      }
-      break;
-    case "heavyBuilder":
-      if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.maxHeavyBuilders && room.energyAvailable >= energyNeeded(HEAVYBUILDER_BODY)) {
-        return true;
-      }
-      break;
-    case "harvester":
-      if (Memory.spawnEngine.harvesters < Memory.spawnEngine.maxHarvesters && room.energyAvailable >= energyNeeded(HARVESTER_BODY)) {
-        return true;
-      }
-      break;
-    case "upgrader":
-      if (Memory.spawnEngine.upgraders < Memory.spawnEngine.maxUpgraders && room.energyAvailable >= energyNeeded(UPGRADER_BODY)) {
-        return true;
-      }
-      break;
-  }
-
-  return false;
-}
 
 const spawniters = {
   harvester: { spawner: spawnHarvester, next: "builder" },
@@ -176,7 +189,7 @@ const spawniters = {
 };
 
 function getNextSpawner() {
-  if ("lastType" in Memory.spawnEngine) {
+  if ("lastType" in Memory.spawnEngine && Memory.spawnEngine !== undefined) {
     let current = spawniters[Memory.spawnEngine.lastType];
     return spawniters[current.next];
   }
@@ -185,47 +198,21 @@ function getNextSpawner() {
 }
 
 function spawnMinimums(spawn1) {
-  if (
-    Memory.spawnEngine.harvesters < Memory.spawnEngine.minHarvesters &&
-    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
-  ) {
-    spawnHarvester(spawn1);
-  } else if (
-    Memory.spawnEngine.upgraders < Memory.spawnEngine.minUpgraders &&
-    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
-  ) {
-    spawnUpgrader(spawn1);
-  } else if (
-    Memory.spawnEngine.builders < Memory.spawnEngine.minBuilders &&
-    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
-  ) {
-    spawnBuilder(spawn1);
-  } else if (
-    Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.minHeavyBuilders &&
-    spawn1.room.energyAvailable >= energyNeeded(BUILDER_BODY)
-  ) {
-    spawnHeavyBuilder(spawn1);
-  } else {
-    return false;
-  }
+  spawnfs = [spawnHarvester, spawnUpgrader, spawnBuilder, spawnHeavyBuilder];
 
-  return true;
+  for (spawnIt of spawnfs) {
+    if ( spawnIt(spawn1) ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function spawnMaximums(spawn1) {  
-  var spawnerType = getNextSpawner();
-  if (canSpawn(spawnerType)) {
-    var spawniter = spawniters[spawnerType];
-    spawniter.spawner(spawn1);
-  }
-  else {
-    const defaultSpawner = { spawner: spawnHarvester, next: "builder" };
-    if (canSpawn(defaultSpawner)) {
-      defaultSpawner.spawn(spawn1);
-    }
-  }
-
-  return true;
+  const defaultSpawner = { spawner: spawnHarvester, next: "builder" };
+  var spawniter = getNextSpawner();
+  
+  return spawniter.spawner(spawn1) || defaultSpawner.spawner(spawn1);
 }
 
 function spawnTheCreeps(spawn1) {
