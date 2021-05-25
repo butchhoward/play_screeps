@@ -9,7 +9,7 @@
 //     var newName = this.role + Game.time;
 //     console.log("Spawning new Creep: " + newName);
 //     let err = this.spawnFrom.spawnCreep(body, newName, opts);
-//     if (err != OK) {
+//     if (err !== OK) {
 //       console.log("failed to spawn " + newName + " : " + err);
 //     } else {
 //       recordAddedCreep(newName);
@@ -51,7 +51,6 @@ function recordAddedCreep(name) {
   Memory.spawnEngine.lastType = creepData.role;
   switch (creepData.role) {
     case "builder":
-      Memory.spawnEngine.nextType = "upgrader";
       if (creepData.heavy) {
         Memory.spawnEngine.heavyBuilders++;
       } else {
@@ -59,11 +58,9 @@ function recordAddedCreep(name) {
       }
       break;
     case "harvester":
-      Memory.spawnEngine.nextType = "builder";
       Memory.spawnEngine.harvesters++;
       break;
     case "upgrader":
-      Memory.spawnEngine.nextType = "harvester";
       Memory.spawnEngine.upgraders++;
       break;
   }
@@ -74,7 +71,7 @@ function cleanDeadCreeps() {
     if (!Game.creeps[name]) {
       cleanupAfterCreep(name);
       delete Memory.creeps[name];
-      console.log("Clearing non-existing creep memory:", name);
+      console.log("Clearing creep:", name);
     }
   }
 }
@@ -103,9 +100,9 @@ function energyNeeded(body) {
 
 function spawnCreep(spawn, body, opts) {
   var newName = opts.memory.role + Game.time;
-  console.log("Spawning new Creep: " + newName);
+  console.log(`Spawning: ${newName} H:${Memory.spawnEngine.harvesters} B:${Memory.spawnEngine.builders} U:${Memory.spawnEngine.upgraders} X:${Memory.spawnEngine.heavyBuilders}`);
   let err = spawn.spawnCreep(body, newName, opts);
-  if (err != OK) {
+  if (err !== OK) {
     console.log(`failed to spawn ${newName} (${err}) need:${energyNeeded(body)} energyAvailable: ${spawn.room.energyAvailable}`);
   } else {
     recordAddedCreep(newName);
@@ -114,7 +111,6 @@ function spawnCreep(spawn, body, opts) {
 }
 
 function reduceBody(body) {
-  //assume similar attributes are together in the Body (i.e. [WORK, WORK, CARRY, MOVE] not [WORK, CARRY, WORK, MOVE])
   newBody = [...body];
   counts = _.countBy(newBody);
   if (counts['work'] > 1) {
@@ -130,8 +126,8 @@ function reduceBody(body) {
   return { body: newBody, changed: true };
 }
 
-function spawnSomeKindOfCreep(spawn, limit, body, opts) {
-  if (Memory.spawnEngine.builders >= limit) {
+function spawnSomeKindOfCreep(spawn, current, limit, body, opts) {
+  if (current >= limit) {
     return false;
   }
 
@@ -154,28 +150,48 @@ function spawnSomeKindOfCreep(spawn, limit, body, opts) {
 
 const HEAVYBUILDER_BODY= [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
 function spawnHeavyBuilder(spawn1) {
-  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxHeavyBuilders, HEAVYBUILDER_BODY, {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.heavyBuilders, Memory.spawnEngine.maxHeavyBuilders, HEAVYBUILDER_BODY, {
+    memory: { role: "builder", building: false, heavy: true },
+  });
+}
+function spawnHeavyBuilderMin(spawn1) {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.heavyBuilders, Memory.spawnEngine.minHeavyBuilders, HEAVYBUILDER_BODY, {
     memory: { role: "builder", building: false, heavy: true },
   });
 }
 
 const BUILDER_BODY=[WORK, CARRY, MOVE, MOVE];
 function spawnBuilder(spawn1) {
-  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxBuilders, BUILDER_BODY, {
-    memory: { role: "builder", building: false, heavy: true },
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.builders, Memory.spawnEngine.maxBuilders, BUILDER_BODY, {
+    memory: { role: "builder", building: false, heavy: false },
+  });
+}
+function spawnBuilderMin(spawn1) {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.builders, Memory.spawnEngine.minBuilders, BUILDER_BODY, {
+    memory: { role: "builder", building: false, heavy: false },
   });
 }
 
 const UPGRADER_BODY=[WORK, CARRY, MOVE, MOVE];
 function spawnUpgrader(spawn1) {
-  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxUpgraders, UPGRADER_BODY, {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.upgraders, Memory.spawnEngine.maxUpgraders, UPGRADER_BODY, {
+    memory: { role: "upgrader", upgrading: false},
+  });
+}
+function spawnUpgraderMin(spawn1) {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.upgraders, Memory.spawnEngine.minUpgraders, UPGRADER_BODY, {
     memory: { role: "upgrader", upgrading: false},
   });
 }
 
 const HARVESTER_BODY=[WORK, WORK, CARRY, MOVE, MOVE];
 function spawnHarvester(spawn1) {
-  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.maxHarvesters, HARVESTER_BODY, {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.harvesters, Memory.spawnEngine.maxHarvesters, HARVESTER_BODY, {
+    memory: { role: "harvester" },
+  });
+}
+function spawnHarvesterMin(spawn1) {
+  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.harvesters, Memory.spawnEngine.minHarvesters, HARVESTER_BODY, {
     memory: { role: "harvester" },
   });
 }
@@ -189,7 +205,7 @@ const spawniters = {
 };
 
 function getNextSpawner() {
-  if ("lastType" in Memory.spawnEngine && Memory.spawnEngine !== undefined) {
+  if ("lastType" in Memory.spawnEngine && Memory.spawnEngine.lastType !== undefined) {
     let current = spawniters[Memory.spawnEngine.lastType];
     return spawniters[current.next];
   }
@@ -198,7 +214,7 @@ function getNextSpawner() {
 }
 
 function spawnMinimums(spawn1) {
-  spawnfs = [spawnHarvester, spawnUpgrader, spawnBuilder, spawnHeavyBuilder];
+  spawnfs = [spawnHarvesterMin, spawnUpgraderMin, spawnBuilderMin, spawnHeavyBuilderMin];
 
   for (spawnIt of spawnfs) {
     if ( spawnIt(spawn1) ) {
@@ -228,20 +244,20 @@ function initMemorySpawnEngine(spawn1) {
     return;
   }
 
-  var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == "harvester");
-  var builders = _.filter(Game.creeps, (creep) => creep.memory.role == "builder");
-  var heavyBuilders = _.filter(Game.creeps, (creep) => creep.memory.role == "builder" && creep.memory.heavy == true);
-  var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == "upgrader");
+  var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === "harvester");
+  var builders = _.filter(Game.creeps, (creep) => creep.memory.role === "builder");
+  var heavyBuilders = _.filter(Game.creeps, (creep) => creep.memory.role === "builder" && creep.memory.heavy === true);
+  var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === "upgrader");
 
   Memory.spawnEngine = {
     minHarvesters: 2,
     minBuilders: 2,
     minUpgraders: 2,
     minHeavyBuilders: 1,
-    maxHarvesters: 100,
-    maxBuilders: 100,
-    maxUpgraders: 100,
-    maxHeavyBuilders: 25,
+    maxHarvesters: 20,
+    maxBuilders: 20,
+    maxUpgraders: 20,
+    maxHeavyBuilders: 5,
 
     harvesters: harvesters.length,
     builders: builders.length,
