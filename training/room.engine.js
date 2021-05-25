@@ -118,7 +118,7 @@ var roomEngine = {
       return false;
     }
 
-    buildExtensions(room);
+    // buildExtensions(room);
     buildMainRoads(room);
 
     return true;
