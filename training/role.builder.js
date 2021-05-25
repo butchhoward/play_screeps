@@ -1,6 +1,18 @@
 var roleUpgrader = require("role.upgrader");
 var sourcePicker = require("source.picker");
 
+function updateActivity(creepData, creep) {
+  if (creepData.building && creep.store[RESOURCE_ENERGY] == 0) {
+    creepData.building = false;
+    creep.say("🔄 harvest");
+  }
+  if (!creepData.building && creep.store.getFreeCapacity() == 0) {
+    creepData.building = true;
+    creep.say("🚧 build");
+  }
+}
+
+
 function goHarvesting(creepData, creep) {
   if ( !('harvestSourceId' in creepData) || creepData.harvestSourceId == undefined) {
     creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
@@ -45,14 +57,7 @@ var roleBuilder = {
   run: function (creep) {
     var creepData = Memory.creeps[creep.name];
 
-    if (creepData.building && creep.store[RESOURCE_ENERGY] == 0) {
-      creepData.building = false;
-      creep.say("🔄 harvest");
-    }
-    if (!creepData.building && creep.store.getFreeCapacity() == 0) {
-      creepData.building = true;
-      creep.say("🚧 build");
-    }
+    updateActivity(creepData, creep);
 
     if (creepData.building) {
       goBuildSomething(creepData, creep);
