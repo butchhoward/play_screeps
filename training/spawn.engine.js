@@ -75,25 +75,25 @@ function spawnCreep(spawn, body, opts) {
 }
 
 function spawnHeavyBuilder(spawn1) {
-  spawnCreep(spawn1, [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE], {
+  spawnCreep(spawn1, [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE], {
     memory: { role: "builder", building: false, heavy: true },
   });
 }
 
 function spawnBuilder(spawn1) {
-  spawnCreep(spawn1, [WORK, CARRY, MOVE], {
+  spawnCreep(spawn1, [WORK, CARRY, MOVE, MOVE], {
     memory: { role: "builder", building: false, heavy: false },
   });
 }
 
 function spawnUpgrader(spawn1) {
-  spawnCreep(spawn1, [WORK, CARRY, MOVE], {
+  spawnCreep(spawn1, [WORK, CARRY, MOVE, MOVE], {
     memory: { role: "upgrader" },
   });
 }
 
 function spawnHarvester(spawn1) {
-  spawnCreep(spawn1, [WORK, CARRY, MOVE], {
+  spawnCreep(spawn1, [WORK, CARRY, MOVE, MOVE], {
     memory: { role: "harvester" },
   });
 }
@@ -101,22 +101,22 @@ function spawnHarvester(spawn1) {
 function canSpawn(room, spawnerType) {
   switch (spawnerType) {
     case "builder":
-      if (Memory.spawnEngine.builders < Memory.spawnEngine.maxBuilders && room.energyAvailable >= 200) {
+      if (Memory.spawnEngine.builders < Memory.spawnEngine.maxBuilders && room.energyAvailable >= 250) {
         return true;
       }
       break;
     case "heavyBuilder":
-      if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.maxHeavyBuilders && room.energyAvailable >= 400) {
+      if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.maxHeavyBuilders && room.energyAvailable >= 450) {
         return true;
       }
       break;
     case "harvester":
-      if (Memory.spawnEngine.harvesters < Memory.spawnEngine.maxHarvesters && room.energyAvailable >= 200) {
+      if (Memory.spawnEngine.harvesters < Memory.spawnEngine.maxHarvesters && room.energyAvailable >= 250) {
         return true;
       }
       break;
     case "upgrader":
-      if (Memory.spawnEngine.upgraders < Memory.spawnEngine.maxUpgraders && room.energyAvailable >= 200) {
+      if (Memory.spawnEngine.upgraders < Memory.spawnEngine.maxUpgraders && room.energyAvailable >= 250) {
         return true;
       }
       break;
@@ -142,7 +142,7 @@ function getNextSpawner() {
 }
 
 function spawnMinimums(spawn1) {
-  if ( spawn1.room.energyAvailable < 200 ) {
+  if ( spawn1.room.energyAvailable < 250 ) {
     return false;
   }
 
@@ -152,7 +152,7 @@ function spawnMinimums(spawn1) {
     spawnUpgrader(spawn1);
   } else if (Memory.spawnEngine.builders < Memory.spawnEngine.minBuilders) {
     spawnBuilder(spawn1);
-  } else if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.minHeavyBuilders && spawn1.room.energyAvailable > 400) {
+  } else if (Memory.spawnEngine.heavyBuilders < Memory.spawnEngine.minHeavyBuilders && spawn1.room.energyAvailable > 450) {
     spawnHeavyBuilder(spawn1);
   }
   else {
