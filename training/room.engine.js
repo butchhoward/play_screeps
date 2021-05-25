@@ -31,7 +31,7 @@ function buildExtensions(room) {
   });
   var constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: (site) => {
-      return site.structureType == STRUCTURE_EXTENSION;
+      return site.structureType === STRUCTURE_EXTENSION;
     },
   });
 
@@ -57,7 +57,7 @@ function buildExtensions(room) {
     pos.y -= 1;
     console.log("Creating extension construction site at " + pos);
     let err = room.createConstructionSite(pos, STRUCTURE_EXTENSION);
-    if (err == OK) {
+    if (err === OK) {
       console.log("Extension created at " + pos);
     } else {
       console.log("Create extension failed: " + err);

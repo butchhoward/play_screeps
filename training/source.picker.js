@@ -1,7 +1,7 @@
 function countCreepsHarvestingSource(sourceId) {
   var harvesters = _.filter(
     Memory.creeps,
-    (creep) => 'harvestSourceId' in creep && creep.harvestSourceId == sourceId
+    (creep) => 'harvestSourceId' in creep && creep.harvestSourceId === sourceId
   );
 
   return harvesters.length;
@@ -9,14 +9,14 @@ function countCreepsHarvestingSource(sourceId) {
 
 function isSourceNearKeeper(room, sourceId) {
   const source = Game.getObjectById(sourceId);
-  if ( source == undefined ) {
+  if ( source === undefined ) {
     return false;
   }
 
   var keepers = room.find(FIND_HOSTILE_CREEPS, {
       filter:function(enemy){enemy.owner.username !== 'Source Keeper'} // !== or ===, depending on use case
     });
-  if (keepers.length == 0) {
+  if (keepers.length === 0) {
     return false;
   }
 
@@ -33,7 +33,7 @@ function isSourceNearKeeper(room, sourceId) {
 function findExtensionsUnderConstruction(room) {
   var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: (site) => {
-      return ( site.structureType == STRUCTURE_EXTENSION &&
+      return ( site.structureType === STRUCTURE_EXTENSION &&
                site.progress < site.progressTotal
       );
     },
@@ -95,8 +95,8 @@ var sourcePicker = {
     var targets = room.find(FIND_STRUCTURES, {
       filter: (structure) => {
         return (
-          (structure.structureType == STRUCTURE_EXTENSION ||
-            structure.structureType == STRUCTURE_SPAWN) &&
+          (structure.structureType === STRUCTURE_EXTENSION ||
+            structure.structureType === STRUCTURE_SPAWN) &&
           structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
         );
       },
@@ -123,7 +123,7 @@ var sourcePicker = {
   findRoadsUnderConstruction: function (room) {
     var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
       filter: (site) => {
-        return ( site.structureType == STRUCTURE_ROAD &&
+        return ( site.structureType === STRUCTURE_ROAD &&
                  site.progress < site.progressTotal
         );
       },
