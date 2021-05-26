@@ -4,6 +4,7 @@
 ## Handy Console Commands
 
 ```
+Game.rooms['E42S15'].energyAvailable
 Game.spawns['Spawn1'].spawnCreep([MOVE,WORK,CARRY], 'UpgraderManual', {memory: { role: "upgrader" }});
 Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY], 'HarvesterManual2', {memory: { role: "harvester" }});
 Memory.creeps['harvester28389492'].transferTargetId;

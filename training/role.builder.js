@@ -23,6 +23,7 @@ function goHarvesting(creepData, creep) {
       let err = creep.harvest(source);
       switch (err) {
         case OK:
+          creepData.harvestSourceId = undefined;
           break;
         case ERR_NOT_IN_RANGE:
           creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" }, reusePath:15 });

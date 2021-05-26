@@ -37,8 +37,17 @@ var roleUpgrader = {
         creepData.harvestSourceId = undefined;
       }
       else {
-        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source, { visualizePathStyle: { stroke: "#ff8822" }, reusePath:15 });
+        let err = creep.harvest(source);
+        switch (err) {
+          case OK:
+            creepData.harvestSourceId = undefined;
+            break;
+          case ERR_NOT_IN_RANGE:
+            creep.moveTo(source, { visualizePathStyle: { stroke: "#ff8822" }, reusePath:15 });
+            break;
+          default:
+            creepData.harvestSourceId = undefined;
+            break;
         }
       }
     }

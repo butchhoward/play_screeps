@@ -156,14 +156,31 @@ function spawnSomeKindOfCreep(spawn, current, limit, body, opts) {
   return true;
 }
 
-const HEAVYBUILDER_BODY= [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
+function spawnSomeKindOfCreepExactly(spawn, current, limit, body, opts) {
+  if (current >= limit) {
+    return false;
+  }
+
+  if (spawn.room.energyAvailable < energyNeeded(body)) {
+      return false;
+  }
+
+  if ( OK !== spawnCreep(spawn, body, opts))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+const HEAVYBUILDER_BODY= [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
 function spawnHeavyBuilder(spawn1) {
-  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.heavyBuilders, Memory.spawnEngine.maxHeavyBuilders, HEAVYBUILDER_BODY, {
+  return spawnSomeKindOfCreepExactly(spawn1, Memory.spawnEngine.heavyBuilders, Memory.spawnEngine.maxHeavyBuilders, HEAVYBUILDER_BODY, {
     memory: { role: "builder", building: false, heavy: true },
   });
 }
 function spawnHeavyBuilderMin(spawn1) {
-  return spawnSomeKindOfCreep(spawn1, Memory.spawnEngine.heavyBuilders, Memory.spawnEngine.minHeavyBuilders, HEAVYBUILDER_BODY, {
+  return spawnSomeKindOfCreepExactly(spawn1, Memory.spawnEngine.heavyBuilders, Memory.spawnEngine.minHeavyBuilders, HEAVYBUILDER_BODY, {
     memory: { role: "builder", building: false, heavy: true },
   });
 }

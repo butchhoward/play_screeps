@@ -1,7 +1,7 @@
 function countCreepsHarvestingSource(sourceId) {
   var harvesters = _.filter(
     Memory.creeps,
-    (creep) => 'harvestSourceId' in creep && creep.harvestSourceId === sourceId
+    (creep) => creep.harvestSourceId && (creep.harvestSourceId === sourceId)
   );
 
   return harvesters.length;
@@ -14,7 +14,7 @@ function isSourceNearKeeper(room, sourceId) {
   }
 
   var keepers = room.find(FIND_HOSTILE_CREEPS, {
-      filter:function(enemy){enemy.owner.username !== 'Source Keeper'} // !== or ===, depending on use case
+      filter:function(enemy){enemy.owner.username === 'Source Keeper'}
     });
   if (keepers.length === 0) {
     return false;
