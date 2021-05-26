@@ -26,7 +26,11 @@ With that starting point, and only playing in the Training rooms so far, I have:
 Prioritizes work:
 * Prioritizes harvesting over upgrading over building
 * Redirects builders to harvesting when idle
-* Resitrects harvesters to upgraders with idle (and so builders->harvesters->upgraders)
+* Redirects harvesters to upgraders with idle (and so builders->harvesters->upgraders)
+* Create Pool of Creeps and allocate work to them instead of creating collections of Creep Types
+  * When a Heavy Creep is neeed or a Specialty Creep is needed, and does no already exist, spawn it
+  * note that creeps have a finite life (1500 ticks) and can die for other reasons (attacks)
+  * note also Specialty Creeps require more energy to spawn, so that limit needs to be accounted
 
 Does not:
 * build roads,walls,etc. (unless manually placed construction sites)
