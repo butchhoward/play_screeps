@@ -65,7 +65,7 @@ var sourcePicker = {
     sources = _.sortBy(sources, s => pos.getRangeTo(s));
     for( let s in sources) {
       let id = sources[s].id;
-      if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 8) {
+      if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 5) {
         return id;
       }
     }
