@@ -20,6 +20,9 @@ function directCreepToWork(creep) {
             break;
         }
       }
+      else {
+        creepData.harvestSourceId = undefined;
+      }
     }
   }
   else {
@@ -56,7 +59,7 @@ function setCreepTargets(creep) {
   }
 
   if (!creepData.transferTargetId) {
-    creepData.transferTargetId = sourcePicker.findPreferredStructure(creep.room);
+    creepData.transferTargetId = sourcePicker.findPreferredStructureForTransferOfHarvest(creep.room);
   }
 }
 

@@ -18,10 +18,24 @@ function goHarvesting(creepData, creep) {
     creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
   }
   const source = Game.getObjectById(creepData.harvestSourceId);
-  if (!source) {
-    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" }, reusePath:15 });
+  if (source) {
+    if (source) {
+      let err = creep.harvest(source);
+      switch (err) {
+        case OK:
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" }, reusePath:15 });
+          break;
+        default:
+          creepData.harvestSourceId = undefined;
+          break;
+      }
     }
+
+  }
+  else {
+    creepData.harvestSourceId = undefined;
   }
 }
 

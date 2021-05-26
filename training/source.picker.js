@@ -91,7 +91,7 @@ var sourcePicker = {
     return undefined;
   },
 
-  findPreferredStructure: function (room) {
+  findPreferredStructureForTransferOfHarvest: function (room) {
     var targets = room.find(FIND_STRUCTURES, {
       filter: (structure) => {
         return (
@@ -103,7 +103,11 @@ var sourcePicker = {
     });
 
     if (targets.length > 0) {
-      return targets[0].id;
+      target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_EXTENSION; });
+      if (!target) {
+        target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_SPAWN; });
+      }
+      return target.id;
     }
 
     return undefined;
