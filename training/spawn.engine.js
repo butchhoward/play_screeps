@@ -52,6 +52,8 @@ function cleanupAfterCreep(name) {
       }
       break;
   }
+  console.log(`Cleaning: ${name} H:${Memory.spawnEngine.harvesters} B:${Memory.spawnEngine.builders} U:${Memory.spawnEngine.upgraders} X:${Memory.spawnEngine.heavyBuilders}`);
+
 }
 
 function recordAddedCreep(name) {
@@ -79,7 +81,6 @@ function cleanDeadCreeps() {
     if (!Game.creeps[name]) {
       cleanupAfterCreep(name);
       delete Memory.creeps[name];
-      console.log("Cleaning:", name);
     }
   }
 }
