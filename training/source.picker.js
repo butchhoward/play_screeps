@@ -30,10 +30,10 @@ function isSourceNearKeeper(room, sourceId) {
   return false;
 }
 
-function findExtensionsUnderConstruction(room) {
+function findThingsUnderConstruction(room, structureType) {
   var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: (site) => {
-      return ( site.structureType === STRUCTURE_EXTENSION &&
+      return ( site.structureType === structureType &&
                site.progress < site.progressTotal
       );
     },
@@ -42,119 +42,108 @@ function findExtensionsUnderConstruction(room) {
 }
 
 
+function findAThingUnderConstruction(room) {
+  var targets = findThingsUnderConstruction(room, STRUCTURE_EXTENSION);
+  if (targets.length > 0) {
+    return targets[0].id;
+  }
+  return undefined;
+}
+
+function findAnExtensionUnderConstruction(room) {
+  return findAThingUnderConstruction(room, STRUCTURE_EXTENSION);
+}
+
+function findRoadUnderConstruction(room){
+  return findAThingUnderConstruction(room, STRUCTURE_ROAD);
+}
+
+function findWallUnderConstruction(room) {
+  return findAThingUnderConstruction(room, STRUCTURE_WALL);
+}
+
+function findATowerUnderConstruction(room) {
+  return findAThingUnderConstruction(room, STRUCTURE_TOWER);
+}
+
+function findSourceNear(room, pos) {
+  var sources = room.find(FIND_SOURCES);
+  sources = _.sortBy(sources, s => pos.getRangeTo(s));
+  for( let s in sources) {
+    let id = sources[s].id;
+    if (!isSourceNearKeeper(room, id)) {
+      return id;
+    }
+  }
+  if (sources.length > 0) {
+    return sources[0].id;
+  }
+
+  return undefined;
+}
+
+function findPreferredSourceNear(room, pos) {
+  var sources = room.find(FIND_SOURCES_ACTIVE);
+  sources = _.sortBy(sources, s => pos.getRangeTo(s));
+  for( let s in sources) {
+    let id = sources[s].id;
+    if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 5) {
+      return id;
+    }
+  }
+  if (sources.length > 0) {
+    return sources[0].id;
+  }
+
+  return undefined;
+}
+
+function findPreferredSource(room) {
+  var sources = room.find(FIND_SOURCES_ACTIVE);
+  for( let s in sources) {
+    let id = sources[s].id;
+    if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 8) {
+      return id;
+    }
+  }
+  if (sources.length > 0) {
+    return sources[0].id;
+  }
+
+  return undefined;
+}
+
+function findPreferredStructureForTransferOfHarvest(room) {
+  var targets = room.find(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return (
+        (structure.structureType === STRUCTURE_EXTENSION ||
+          structure.structureType === STRUCTURE_SPAWN) &&
+        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      );
+    },
+  });
+
+  if (targets.length > 0) {
+    target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_EXTENSION; });
+    if (!target) {
+      target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_SPAWN; });
+    }
+    return target.id;
+  }
+
+  return undefined;
+}
+
 var sourcePicker = {
-
-  findSourceNear: function (room, pos) {
-    var sources = room.find(FIND_SOURCES);
-    sources = _.sortBy(sources, s => pos.getRangeTo(s));
-    for( let s in sources) {
-      let id = sources[s].id;
-      if (!isSourceNearKeeper(room, id)) {
-        return id;
-      }
-    }
-    if (sources.length > 0) {
-      return sources[0].id;
-    }
-
-    return undefined;
-  },
-
-  findPreferredSourceNear: function (room, pos) {
-    var sources = room.find(FIND_SOURCES_ACTIVE);
-    sources = _.sortBy(sources, s => pos.getRangeTo(s));
-    for( let s in sources) {
-      let id = sources[s].id;
-      if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 5) {
-        return id;
-      }
-    }
-    if (sources.length > 0) {
-      return sources[0].id;
-    }
-
-    return undefined;
-  },
-
-  findPreferredSource: function (room) {
-    var sources = room.find(FIND_SOURCES_ACTIVE);
-    for( let s in sources) {
-      let id = sources[s].id;
-      if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 8) {
-        return id;
-      }
-    }
-    if (sources.length > 0) {
-      return sources[0].id;
-    }
-
-    return undefined;
-  },
-
-  findPreferredStructureForTransferOfHarvest: function (room) {
-    var targets = room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return (
-          (structure.structureType === STRUCTURE_EXTENSION ||
-            structure.structureType === STRUCTURE_SPAWN) &&
-          structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-        );
-      },
-    });
-
-    if (targets.length > 0) {
-      target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_EXTENSION; });
-      if (!target) {
-        target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_SPAWN; });
-      }
-      return target.id;
-    }
-
-    return undefined;
-  },
-
-  findExtensionsUnderConstruction: findExtensionsUnderConstruction,
-
-  findAnExtensionUnderConstruction: function (room) {
-    var targets = findExtensionsUnderConstruction(room);
-    if (targets.length > 0) {
-      return targets[0].id;
-    }
-
-    return undefined;
-  },
-
-  findRoadUnderConstruction: function (room) {
-    var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
-      filter: (site) => {
-        return ( site.structureType === STRUCTURE_ROAD &&
-                 site.progress < site.progressTotal
-        );
-      },
-    });
-    if (targets.length > 0) {
-      return targets[0].id;
-    }
-
-    return undefined;
-
-  },
-
-  findWallUnderConstruction: function (room) {
-    var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
-      filter: (site) => {
-        return ( site.structureType === STRUCTURE_WALL &&
-                 site.progress < site.progressTotal
-        );
-      },
-    });
-    if (targets.length > 0) {
-      return targets[0].id;
-    }
-
-    return undefined;
-
-  },
+  findSourceNear: findSourceNear ,
+  findPreferredSourceNear: findPreferredSourceNear,
+  findPreferredSource: findPreferredSource,
+  findPreferredStructureForTransferOfHarvest: findPreferredStructureForTransferOfHarvest,
+  findAnExtensionUnderConstruction: findAnExtensionUnderConstruction,
+  findRoadUnderConstruction: findRoadUnderConstruction,
+  findWallUnderConstruction: findWallUnderConstruction,
+  findATowerUnderConstruction: findATowerUnderConstruction,
 };
 
 module.exports = sourcePicker;

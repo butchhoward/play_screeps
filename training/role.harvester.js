@@ -1,65 +1,26 @@
-var roleBuilder = require("role.builder");
 var sourcePicker = require("source.picker");
+var creepTools = require("creep.tools")
 
-function directCreepToWork(creep) {
-  var creepData = Memory.creeps[creep.name];
-
-  if (creep.store.getFreeCapacity() > 0) {
-    if (creepData.harvestSourceId) {
-      const source = Game.getObjectById(creepData.harvestSourceId);
-      if (source) {
-        let err = creep.harvest(source);
-        switch (err) {
-          case OK:
-            creepData.harvestSourceId = undefined;
-            break;
-          case ERR_NOT_IN_RANGE:
-            creep.moveTo(source, { visualizePathStyle: { stroke: "#ffaa00" }, reusePath:15 });
-            break;
-          default:
-            creepData.harvestSourceId = undefined;
-            break;
-        }
-      }
-      else {
-        creepData.harvestSourceId = undefined;
-      }
-    }
+function updateActivity(creepData, creep) {
+  if (creepData.transferring && creep.store[RESOURCE_ENERGY] === 0) {
+    creepData.transferring = false;
+    creep.say("🔄 harvest");
   }
-  else {
-    if (creepData.transferTargetId) {
-      const target = Game.getObjectById(creepData.transferTargetId);
-      if (target) {
-        let err = creep.transfer(target, RESOURCE_ENERGY);
-        switch (err) {
-          case OK:
-            break;
-          case ERR_NOT_IN_RANGE:
-            creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa55" }, reusePath:15 });
-            break;
-          default:
-            creepData.transferTargetId = undefined;
-            break;
-        }
-      }
-      else {
-        creepData.transferTargetId = undefined;
-      }
-    }
-    else {
-      roleBuilder.run(creep);
-    }
+  if (!creepData.transferring && creep.store.getFreeCapacity() === 0) {
+    creepData.transferring = true;
+    creep.say("🚧 transfer");
   }
 }
 
-function setCreepTargets(creep) {
+
+function setCreepTargets(creepData, creep) {
   var creepData = Memory.creeps[creep.name];
 
-  if (!creepData.harvestSourceId) {
+  if (!creepData.transferring && !creepData.harvestSourceId) {
     creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
   }
 
-  if (!creepData.transferTargetId) {
+  if (creepData.transferring && !creepData.transferTargetId) {
     creepData.transferTargetId = sourcePicker.findPreferredStructureForTransferOfHarvest(creep.room);
   }
 }
@@ -67,8 +28,17 @@ function setCreepTargets(creep) {
 var roleHarvester = {
   /** @param {Creep} creep **/
   run: function (creep) {
-    setCreepTargets(creep);
-    directCreepToWork(creep);
+    var creepData = Memory.creeps[creep.name];
+
+    updateActivity(creepData, creep);
+
+    setCreepTargets(creepData, creep);
+    if (creepData.transferring) {
+      creepTools.goTransferSomething(creepData, creep);
+    }
+    else {
+      creepTools.goHarvesting(creepData, creep);
+    }
   },
 
 };
