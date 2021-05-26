@@ -1,9 +1,7 @@
 var sourcePicker = require("source.picker");
 
 function getCurrentRoom() {
-  //assume I am in training mode and there is only one room
-  //there has to be a better way to get a room from the collection!
-  var room = undefined;
+  var room;
   for (let roomName in Game.rooms) {
     room = Game.rooms[roomName];
     break;
@@ -74,11 +72,7 @@ function layRoadBetween(room, startPos, endPos) {
   }
 }
 
-function buildMainRoads(room) {
-  if (!("mainRoadsBuilt" in Memory.roomEngine)) {
-    Memory.roomEngine.mainRoadsBuilt = false;
-  }
-
+function buildMainRoads() {
   if (Memory.roomEngine.mainRoadsBuilt) {
     return;
   }
@@ -86,21 +80,21 @@ function buildMainRoads(room) {
   const keyFinds = [FIND_MY_SPAWNS, FIND_SOURCES];
   const keyStructures = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_CONTROLLER];
 
-  var spawns = room.find(FIND_MY_SPAWNS);
+  var spawns = this.find(FIND_MY_SPAWNS);
   for (let s in spawns) {
     let spawn = spawns[s];
-    let sourceId = sourcePicker.findSourceNear(room, spawn.pos);
+    let sourceId = sourcePicker.findSourceNear(this, spawn.pos);
     if (sourceId) {
       const source = Game.getObjectById(sourceId);
-      layRoadBetween(room, spawn.pos, source.pos);
-      layRoadBetween(room, spawn.pos, room.controller.pos);
+      layRoadBetween(this, spawn.pos, source.pos);
+      layRoadBetween(this, spawn.pos, this.controller.pos);
     }
   }
-
-  var sourceId = sourcePicker.findSourceNear(room, room.controller.pos);
+  
+  var sourceId = sourcePicker.findSourceNear(this, this.controller.pos);
   if (sourceId) {
     const source = Game.getObjectById(sourceId);
-    layRoadBetween(room, room.controller.pos, source.pos);
+    layRoadBetween(this, this.controller.pos, source.pos);
   }
 
   Memory.roomEngine.mainRoadsBuilt = true;
@@ -118,8 +112,9 @@ var roomEngine = {
       return false;
     }
 
+    Room.prototype.buildMainRoads = buildMainRoads;
     // buildExtensions(room);
-    buildMainRoads(room);
+    room.buildMainRoads();
 
     return true;
   },
