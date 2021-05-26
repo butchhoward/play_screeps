@@ -9,7 +9,7 @@ function countCreepsHarvestingSource(sourceId) {
 
 function isSourceNearKeeper(room, sourceId) {
   const source = Game.getObjectById(sourceId);
-  if ( source === undefined ) {
+  if ( !source ) {
     return false;
   }
 
@@ -120,10 +120,26 @@ var sourcePicker = {
     return undefined;
   },
 
-  findRoadsUnderConstruction: function (room) {
+  findRoadUnderConstruction: function (room) {
     var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
       filter: (site) => {
         return ( site.structureType === STRUCTURE_ROAD &&
+                 site.progress < site.progressTotal
+        );
+      },
+    });
+    if (targets.length > 0) {
+      return targets[0].id;
+    }
+
+    return undefined;
+
+  },
+
+  findWallUnderConstruction: function (room) {
+    var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
+      filter: (site) => {
+        return ( site.structureType === STRUCTURE_WALL &&
                  site.progress < site.progressTotal
         );
       },

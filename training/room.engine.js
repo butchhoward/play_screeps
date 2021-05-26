@@ -12,7 +12,7 @@ function getCurrentRoom() {
 }
 
 function buildExtensions(room) {
-  if (room === undefined || room.name === undefined) {
+  if (!room  || !room.name) {
     return;
   }
 
@@ -113,7 +113,7 @@ var roomEngine = {
     }
 
     var room = getCurrentRoom();
-    if (room === undefined) {
+    if (!room) {
       console.log("room undefined");
       return false;
     }

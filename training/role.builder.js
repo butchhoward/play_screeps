@@ -14,45 +14,61 @@ function updateActivity(creepData, creep) {
 
 
 function goHarvesting(creepData, creep) {
-  if ( !('harvestSourceId' in creepData) || creepData.harvestSourceId === undefined) {
+  if ( !creepData.harvestSourceId) {
     creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
   }
   const source = Game.getObjectById(creepData.harvestSourceId);
-  if (source !== undefined) {
+  if (!source) {
     if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" } });
+      creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" }, reusePath:15 });
     }
   }
 }
 
 function goBuildSomething(creepData, creep) {
-  if ('buildTargetId' in creepData && creepData.buildTargetId !== undefined) {
+  if (creepData.buildTargetId) {
     const site = Game.getObjectById(creepData.buildTargetId);
-    if (site === undefined) {
+    if (!site) {
       //site removed either by being completed or some attack
       creepData.buildTargetId = undefined;
     }
   }
 
-  if (!('buildTargetId' in creepData) || creepData.buildTargetId === undefined) {
+  if (!creepData.buildTargetId) {
     creepData.buildTargetId = sourcePicker.findAnExtensionUnderConstruction(creep.room);
+    if (!creepData.buildTargetId) {
+      creepData.buildTargetId = sourcePicker.findRoadUnderConstruction(creep.room);
+    }
+    if (!creepData.buildTargetId) {
+      creepData.buildTargetId = sourcePicker.findWallUnderConstruction(creep.room);
+    }
   }
 
-  if (!('buildTargetId' in creepData) || creepData.buildTargetId !== undefined) {
+  if (creepData.buildTargetId) {
     const target = Game.getObjectById(creepData.buildTargetId);
-    if (target === undefined )
+    if (!target)
     {
       creepData.buildTargetId = undefined;
       creepData.building = false;
+      roleUpgrader.run(creep);
     }
     else {
-      if (creep.build(target) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(target, {
-          visualizePathStyle: { stroke: "#ffccbb" },
-        });
+      var err = creep.build(target);
+      switch (err) {
+        case OK:
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.moveTo(target, {
+            visualizePathStyle: { stroke: "#ffccbb" }, reusePath:15
+          });
+          break;
+        default:
+          creepData.buildTargetId = undefined;
+          break;
       }
     }
-  } else {
+  } 
+  else {
     roleUpgrader.run(creep);
   }
 }

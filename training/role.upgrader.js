@@ -21,24 +21,24 @@ var roleUpgrader = {
         case OK:
           break;
         case ERR_NOT_IN_RANGE:
-          creep.moveTo(creep.room.controller, {visualizePathStyle: { stroke: "#ff8866" },});
+          creep.moveTo(creep.room.controller, {visualizePathStyle: { stroke: "#ff8866" }, reusePath:15});
             break;
         default:
           break;
         }
         
     } else {
-      if ( !('harvestSourceId' in creepData) || creepData.harvestSourceId === undefined) {
+      if ( !creepData.harvestSourceId) {
         creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
       }
       const source = Game.getObjectById(creepData.harvestSourceId);
-      if (source === undefined )
+      if (!source)
       {
         creepData.harvestSourceId = undefined;
       }
       else {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source, { visualizePathStyle: { stroke: "#ff8822" } });
+          creep.moveTo(source, { visualizePathStyle: { stroke: "#ff8822" }, reusePath:15 });
         }
       }
     }

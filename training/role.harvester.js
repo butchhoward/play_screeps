@@ -5,15 +5,15 @@ function directCreepToWork(creep) {
   var creepData = Memory.creeps[creep.name];
 
   if (creep.store.getFreeCapacity() > 0) {
-    if ('harvestSourceId' in creepData && creepData.harvestSourceId !== undefined) {
+    if (creepData.harvestSourceId) {
       const source = Game.getObjectById(creepData.harvestSourceId);
-      if (source !== undefined) {
+      if (source) {
         let err = creep.harvest(source);
         switch (err) {
           case OK:
             break;
           case ERR_NOT_IN_RANGE:
-            creep.moveTo(source, { visualizePathStyle: { stroke: "#ffaa00" } });
+            creep.moveTo(source, { visualizePathStyle: { stroke: "#ffaa00" }, reusePath:15 });
             break;
           default:
             creepData.harvestSourceId = undefined;
@@ -23,15 +23,15 @@ function directCreepToWork(creep) {
     }
   }
   else {
-    if ('transferTargetId' in creepData && creepData.transferTargetId !== undefined) {
+    if (creepData.transferTargetId) {
       const target = Game.getObjectById(creepData.transferTargetId);
-      if (target !== undefined) {
+      if (target) {
         let err = creep.transfer(target, RESOURCE_ENERGY);
         switch (err) {
           case OK:
             break;
           case ERR_NOT_IN_RANGE:
-            creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa55" } });
+            creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa55" }, reusePath:15 });
             break;
           default:
             creepData.transferTargetId = undefined;
@@ -51,11 +51,11 @@ function directCreepToWork(creep) {
 function setCreepTargets(creep) {
   var creepData = Memory.creeps[creep.name];
 
-  if (!('harvestSourceId' in creepData) || creepData.harvestSourceId === undefined) {
+  if (!creepData.harvestSourceId) {
     creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
   }
 
-  if (!('transferTargetId' in creepData) || creepData.transferTargetId === undefined) {
+  if (!creepData.transferTargetId) {
     creepData.transferTargetId = sourcePicker.findPreferredStructure(creep.room);
   }
 }

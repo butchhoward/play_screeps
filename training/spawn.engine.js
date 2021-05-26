@@ -213,7 +213,7 @@ const spawniters = {
 };
 
 function getNextSpawner() {
-  if ("lastType" in Memory.spawnEngine && Memory.spawnEngine.lastType !== undefined) {
+  if (Memory.spawnEngine.lastType) {
     let current = spawniters[Memory.spawnEngine.lastType];
     return spawniters[current.next];
   }
@@ -281,7 +281,7 @@ var spawnEngine = {
       spawn1 = Game.spawns[s];
       break;
     }
-    if (spawn1 === undefined) {
+    if (!spawn1) {
       console.log("spawnEngine spawn1 undefined");
       return;
     }
