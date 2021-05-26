@@ -8,6 +8,9 @@ Game.spawns['Spawn1'].spawnCreep([MOVE,WORK,CARRY], 'UpgraderManual', {memory: {
 Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY], 'HarvesterManual2', {memory: { role: "harvester" }});
 Memory.creeps['harvester28389492'].transferTargetId;
 Game.creeps['builder28402234'].say('H');
+Memory.spawnEngine.minHarvesters=8;
+Memory.spawnEngine.minBuilders=8;
+Memory.spawnEngine.minUpgraders=8;
 ```
 
 ## The Story so Far
