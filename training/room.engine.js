@@ -102,15 +102,17 @@ function buildTowers(room) {
       return flag.name.includes("FlagTower");
     },
   });
+  console.log(`tower flags: ${flags.length}`);
   if (!flags || flags.length === 0) {
     return;
   }
   for (let f in flags) {
-    let flag = flag[f];
+    let flag = flags[f];
 
-    var err = room.createConstructionSite(flag.pos, STRUCTURE_TOWER, `Tower-${Game.time}`);
+    var err = room.createConstructionSite(flag.pos, STRUCTURE_TOWER);
     switch(err) {
       case OK:
+        console.log("Tower Site placed");
         flag.remove();
         break;
       case ERR_INVALID_TARGET:
@@ -118,6 +120,7 @@ function buildTowers(room) {
         flag.remove();
         continue;
       default:
+        console.log(`tower err: ${err}`);
         return;
     }
   }
@@ -143,7 +146,7 @@ function level3Check(room) {
 function checkControllerLevelUpdate() {
   const controllerLevelCheckers = { 0: levelZeroCheck, 1: levelOneCheck, 2: level2Check, 3: level3Check };
 
-  checker = controllerLevelCheckers[this.controller.level];
+  var checker = controllerLevelCheckers[this.controller.level];
   if (checker) {
     if (Memory.roomEngine.lastLevelChecked >= this.controller.level) {
       return;
@@ -153,7 +156,14 @@ function checkControllerLevelUpdate() {
 
 }
 
-
+function defendRoom(room) {
+  var hostiles = room.find(FIND_HOSTILE_CREEPS);
+  if(hostiles.length > 0) {
+      var towers = room.find(
+          FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+      towers.forEach(tower => tower.attack(hostiles[0]));
+  }
+}
 
 var roomEngine = {
   run: function () {
@@ -170,6 +180,7 @@ var roomEngine = {
     Room.prototype.buildMainRoads = buildMainRoads;
     Room.prototype.checkControllerLevelUpdate = checkControllerLevelUpdate;
     room.checkControllerLevelUpdate();
+    defendRoom(room);
     return true;
   },
 };

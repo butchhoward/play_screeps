@@ -4,11 +4,11 @@ var creepTools = require("creep.tools")
 function updateActivity(creepData, creep) {
   if (creepData.transferring && creep.store[RESOURCE_ENERGY] === 0) {
     creepData.transferring = false;
-    creep.say("🔄 harvest");
+    creep.say("🔄 ");
   }
   if (!creepData.transferring && creep.store.getFreeCapacity() === 0) {
     creepData.transferring = true;
-    creep.say("🚧 transfer");
+    creep.say("🚧 ");
   }
 }
 
