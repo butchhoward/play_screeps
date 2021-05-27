@@ -30,7 +30,7 @@ function isSourceNearKeeper(room, sourceId) {
   return false;
 }
 
-function findThingsUnderConstruction(room, structureType) {
+function findThingsUnderConstruction(room, structureType, pos) {
   var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: (site) => {
       return ( site.structureType === structureType &&
@@ -38,32 +38,35 @@ function findThingsUnderConstruction(room, structureType) {
       );
     },
   });
+  if (targets.length > 0 && pos) {
+    targets = _.sortBy(targets, s => pos.getRangeTo(s));
+  }
   return targets;
 }
 
 
-function findAThingUnderConstruction(room, structureType) {
-  var targets = findThingsUnderConstruction(room, structureType);
+function findAThingUnderConstruction(room, structureType, pos) {
+  var targets = findThingsUnderConstruction(room, structureType, pos);
   if (targets.length > 0) {
     return targets[0].id;
   }
   return undefined;
 }
 
-function findAnExtensionUnderConstruction(room) {
-  return findAThingUnderConstruction(room, STRUCTURE_EXTENSION);
+function findAnExtensionUnderConstruction(room, pos) {
+  return findAThingUnderConstruction(room, STRUCTURE_EXTENSION, pos);
 }
 
-function findRoadUnderConstruction(room){
-  return findAThingUnderConstruction(room, STRUCTURE_ROAD);
+function findRoadUnderConstruction(room, pos){
+  return findAThingUnderConstruction(room, STRUCTURE_ROAD, pos);
 }
 
-function findWallUnderConstruction(room) {
-  return findAThingUnderConstruction(room, STRUCTURE_WALL);
+function findWallUnderConstruction(room, pos) {
+  return findAThingUnderConstruction(room, STRUCTURE_WALL, pos);
 }
 
-function findATowerUnderConstruction(room) {
-  return findAThingUnderConstruction(room, STRUCTURE_TOWER);
+function findATowerUnderConstruction(room, pos) {
+  return findAThingUnderConstruction(room, STRUCTURE_TOWER, pos);
 }
 
 function findSourceNear(room, pos) {

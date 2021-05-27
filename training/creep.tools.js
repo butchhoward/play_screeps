@@ -31,7 +31,7 @@ function goBuildSomething(creepData, creep) {
     for (let b of buildPickers) {
       // console.log(`goBuildSomething 2: ${b}`);
 
-      creepData.buildTargetId = b(creep.room);
+      creepData.buildTargetId = b(creep.room, creep.pos);
       if (creepData.buildTargetId) {
         // console.log(`Builder Will Build: ${creepData.buildTargetId}`);
         break;
@@ -76,7 +76,7 @@ function goBuildSomething(creepData, creep) {
 
 function moveToRallyPoint(creep) {
   let flags = creep.room.find(FIND_FLAGS, { filter: (flag) => {
-    return flag.name.includes("FlagRally");
+    return flag.name.includes("Rally");
   },
   });
   if (flags.length === 0) {
