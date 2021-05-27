@@ -21,7 +21,7 @@ var roleBuilder = {
 
     // creepData.building=true;
     updateActivity(creepData, creep);
-    // console.log(`Builder: ${creep.name} ${creepData.building} ${creepData.buildTargetId} ${creepData.harvestSourceId} ${creep.store.getFreeCapacity()} ${creep.store[RESOURCE_ENERGY]}`);
+    // console.log(`Builder: ${creep.name} ${creepData.building?"Building":"Harvesting"} ${creepData.buildTargetId} ${creepData.harvestSourceId} ${creep.store.getFreeCapacity()} ${creep.store[RESOURCE_ENERGY]}`);
     if (creepData.building) {
       creepTools.goBuildSomething(creepData, creep);
     } 

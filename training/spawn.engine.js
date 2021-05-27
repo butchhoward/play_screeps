@@ -160,7 +160,7 @@ function spawnSentinels(spawn) {
     return false;
   }
 
-  var flags = room.find(FIND_FLAGS, { filter: (flag) => {
+  var flags = spawn.room.find(FIND_FLAGS, { filter: (flag) => {
                       return flag.name.includes("FlagSentinel");
                       },
                     });
@@ -183,10 +183,10 @@ function spawnSentinels(spawn) {
   }
 
   for (let f in flags) {
-    let flag = flag[f];
+    let flag = flags[f];
 
     const fakeCurrentCount=0;
-    if (spawnSomeKindOfCreepExactly(spawn1, fakeCurrentCount, flags.length, body, {
+    if (spawnSomeKindOfCreepExactly(spawn, fakeCurrentCount, flags.length, body, {
       memory: { role: "sentinel", pos: flag.pos },
     })) {
       flag.remove();
@@ -245,11 +245,11 @@ function spawnHarvesterMin(spawn1) {
 
 
 const spawniters = {
+  sentinel: { spawner: spawnSentinels, next: "harvester"},
   harvester: { spawner: spawnHarvester, next: "builder" },
   builder: { spawner: spawnBuilder, next: "upgrader" },
   upgrader: { spawner: spawnUpgrader, next: "heavyBuilder" },
   heavyBuilder: { spawner: spawnHeavyBuilder, next: "sentinel" },
-  sentinel: { spawner: spawnSentinels, next: "harvester"},
 };
 
 function getNextSpawner() {
@@ -262,7 +262,7 @@ function getNextSpawner() {
 }
 
 function spawnMinimums(spawn1) {
-  spawnfs = [spawnHarvesterMin, spawnUpgraderMin, spawnBuilderMin, spawnHeavyBuilderMin];
+  spawnfs = [spawnSentinels, spawnHarvesterMin, spawnUpgraderMin, spawnBuilderMin, spawnHeavyBuilderMin];
 
   for (spawnIt of spawnfs) {
     if ( spawnIt(spawn1) ) {
@@ -316,23 +316,19 @@ function initMemorySpawnEngine(spawn1) {
 
 var spawnEngine = {
   run: function () {
-    var spawn1 = undefined;
-    for ( let s in Game.spawns) {
-      spawn1 = Game.spawns[s];
-      break;
-    }
-    if (!spawn1) {
-      console.log("spawnEngine spawn1 undefined");
+    var spawn = Game.spawns["Spawn1"];
+    if (!spawn) {
+      console.log("run spawnEngine spawn undefined");
       return;
     }
 
-    initMemorySpawnEngine(spawn1);
+    initMemorySpawnEngine(spawn);
 
     cleanDeadCreeps();
 
-    spawnTheCreeps(spawn1);
+    spawnTheCreeps(spawn);
 
-    announceSpawning(spawn1);
+    announceSpawning(spawn);
   },
 };
 

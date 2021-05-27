@@ -1,6 +1,6 @@
 
 function gotoPost(creepData, creep) {
-  creep.moveTo(creepData.pos, {
+  creep.moveTo(creepData.pos.x, creepData.pos.y, {
     visualizePathStyle: { stroke: "#ff0000" }, reusePath:15,} 
   );
 }
