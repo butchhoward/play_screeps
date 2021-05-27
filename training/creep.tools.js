@@ -89,12 +89,12 @@ function moveToRallyPoint(creep) {
 function moveToHarvestSourceWhenNotCrowded(creep, source) {
   
   if (source) {
-    const region_size = 4;
+    const region_around = 2; // range out 2 steps in each direction, so a 5x5 area
     const population = 8;
-    let left = source.pos.x - region_size;
-    let right = source.pos.x + region_size;
-    let top = source.pos.y + region_size;
-    let bottom = source.pos.y - region_size;
+    let left = source.pos.x - region_around;
+    let right = source.pos.x + region_around;
+    let top = source.pos.y + region_around;
+    let bottom = source.pos.y - region_around;
     if (countCreepsInArea(creep.room, top, left, bottom, right) <= population ) {
       if ( OK === creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" }, reusePath:15 })) {
         return;
