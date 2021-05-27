@@ -21,35 +21,39 @@ Basically started with the tutorial code along with some additional code from [S
 With that starting point, and only playing in the Training rooms so far, I have:
 * Automated the creation and directions of creeps to Build, Upgrade, and Harvest
 * Automated the created of a HeavyBuilder (only kicks in after energy soource extensions are ready)
+* Does create a Main Roads between spawn, controller, and nearest sources
 * Automated the creation of energy source extensions (based on the room controller level)
-
-Prioritizes work:
 * Prioritizes harvesting over upgrading over building
-* Redirects builders to harvesting when idle
-* Redirects harvesters to upgraders with idle (and so builders->harvesters->upgraders)
+* Redirects builders to harvesting when idle 
+  * the fallbacks are builder->harvester->upgrader
+  * heavybuilder is a builder
+  * sentinels are only sentinels
+* Automated creation of Sentinels and Towers
+* defend against attackers
+ 
+Prioritizes work:
 * Create Pool of Creeps and allocate work to them instead of creating collections of Creep Types
   * When a Heavy Creep is neeed or a Specialty Creep is needed, and does no already exist, spawn it
   * note that creeps have a finite life (1500 ticks) and can die for other reasons (attacks)
   * note also Specialty Creeps require more energy to spawn, so that limit needs to be accounted
 
 Does not:
-* build roads,walls,etc. (unless manually placed construction sites)
-  * Does create a Main Roads between spawn, controller, and nearest sources
-* defend against attackers
+* build automatically roads,walls,etc. (unless manually placed construction sites) other than main roads created earlier
 * any of the advanced skills (mining, manufacturing, trading, etc.)
 
 
 ## 
 
 Todo:
-
+* Use some kind of Javascript Prototype / Objects to better structure the code
+  
 * Target specific creeps to tasks (instead of classes of creeps to types of tasks)
-* Limit creeps harvesting from source based on source accessibility limtes (e.g. Training Sim source can only support 3 harvesters)
-  * Default to just setting a hard limit of 8 for now
 * Change Extension creation so that they are placed closer to the nearest Source instead of by the Spawn
 * Change so that not dpendent on the spawn being named "Spawn1"
 * Build Main Roads 2- or 3- wide (single width at least lays a track)
 
+
+* Place extensions is a star pattern instead of a line
 ```
 .................
 .................
