@@ -148,6 +148,34 @@ function spawnSomeKindOfCreepExactly(spawn, current, limit, body, opts) {
   return true;
 }
 
+
+const SENTINEL_BODY= [MOVE, TOUGH, TOUGH, ATTACK, RANGED_ATTACK];
+function spawnSentinels(spawn) {
+  if (spawn.room.controller.level <=2 ) {
+    return false;
+  }
+
+  var flags = room.find(FIND_FLAGS, { filter: (flag) => {
+      return flag.name.includes("FlagSentinel");
+    },
+  });
+  if (!flags || flags.length === 0) {
+    return false;
+  }
+
+  for (let f in flags) {
+    let flag = flag[f];
+
+    const fakeCurrentCount=0;
+    if (spawnSomeKindOfCreepExactly(spawn1, fakeCurrentCount, flags.length, SENTINEL_BODY, {
+      memory: { role: "sentinel", pos: flag.pos },
+    })) {
+      flag.remove();
+      return true;
+    }
+  }
+}
+
 const HEAVYBUILDER_BODY= [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE];
 function spawnHeavyBuilder(spawn1) {
   return spawnSomeKindOfCreepExactly(spawn1, Memory.spawnEngine.heavyBuilders, Memory.spawnEngine.maxHeavyBuilders, HEAVYBUILDER_BODY, {
@@ -201,7 +229,8 @@ const spawniters = {
   harvester: { spawner: spawnHarvester, next: "builder" },
   builder: { spawner: spawnBuilder, next: "upgrader" },
   upgrader: { spawner: spawnUpgrader, next: "heavyBuilder" },
-  heavyBuilder: { spawner: spawnHeavyBuilder, next: "harvester" },
+  heavyBuilder: { spawner: spawnHeavyBuilder, next: "sentinel" },
+  sentinel: { spawner: spawnSentinels, next: "harvester"},
 };
 
 function getNextSpawner() {

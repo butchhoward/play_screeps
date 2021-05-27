@@ -72,33 +72,88 @@ function layRoadBetween(room, startPos, endPos) {
   }
 }
 
-function buildMainRoads() {
-  if (Memory.roomEngine.mainRoadsBuilt) {
-    return;
-  }
-
+function buildMainRoads(room) {
   const keyFinds = [FIND_MY_SPAWNS, FIND_SOURCES];
   const keyStructures = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_CONTROLLER];
 
-  var spawns = this.find(FIND_MY_SPAWNS);
+  var spawns = room.find(FIND_MY_SPAWNS);
   for (let s in spawns) {
     let spawn = spawns[s];
-    let sourceId = sourcePicker.findSourceNear(this, spawn.pos);
+    let sourceId = sourcePicker.findSourceNear(room, spawn.pos);
     if (sourceId) {
       const source = Game.getObjectById(sourceId);
-      layRoadBetween(this, spawn.pos, source.pos);
-      layRoadBetween(this, spawn.pos, this.controller.pos);
+      layRoadBetween(room, spawn.pos, source.pos);
+      layRoadBetween(room, spawn.pos, room.controller.pos);
     }
   }
   
-  var sourceId = sourcePicker.findSourceNear(this, this.controller.pos);
+  var sourceId = sourcePicker.findSourceNear(room, room.controller.pos);
   if (sourceId) {
     const source = Game.getObjectById(sourceId);
-    layRoadBetween(this, this.controller.pos, source.pos);
+    layRoadBetween(room, room.controller.pos, source.pos);
   }
 
   Memory.roomEngine.mainRoadsBuilt = true;
 }
+
+function buildTowers(room) {
+
+  var flags = room.find(FIND_FLAGS, { filter: (flag) => {
+      return flag.name.includes("FlagTower");
+    },
+  });
+  if (!flags || flags.length === 0) {
+    return;
+  }
+  for (let f in flags) {
+    let flag = flag[f];
+
+    var err = room.createConstructionSite(flag.pos, STRUCTURE_TOWER, `Tower-${Game.time}`);
+    switch(err) {
+      case OK:
+        flag.remove();
+        break;
+      case ERR_INVALID_TARGET:
+        console.log(`Cannot place Tower at ${flag.pos}`);
+        flag.remove();
+        continue;
+      default:
+        return;
+    }
+  }
+}
+
+function levelZeroCheck(room) {
+  buildMainRoads(room);
+  Memory.roomEngine.lastLevelChecked = 0;
+}
+function levelOneCheck(room) {
+  //build Spawn?
+  Memory.roomEngine.lastLevelChecked = 1;
+}
+function level2Check(room) {
+  buildExtensions(room);
+  Memory.roomEngine.lastLevelChecked = 2;
+}
+function level3Check(room) {
+  buildTowers(room);
+  Memory.roomEngine.lastLevelChecked = 3;
+}
+
+function checkControllerLevelUpdate() {
+  const controllerLevelCheckers = { 0: levelZeroCheck, 1: levelOneCheck, 2: level2Check, 3: level3Check };
+
+  checker = controllerLevelCheckers[this.controller.level];
+  if (checker) {
+    if (Memory.roomEngine.lastLevelChecked >= this.controller.level) {
+      return;
+    }
+    checker(this);
+  }
+
+}
+
+
 
 var roomEngine = {
   run: function () {
@@ -113,9 +168,8 @@ var roomEngine = {
     }
 
     Room.prototype.buildMainRoads = buildMainRoads;
-    // buildExtensions(room);
-    room.buildMainRoads();
-
+    Room.prototype.checkControllerLevelUpdate = checkControllerLevelUpdate;
+    room.checkControllerLevelUpdate();
     return true;
   },
 };
