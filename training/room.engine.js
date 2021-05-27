@@ -99,7 +99,7 @@ function buildMainRoads(room) {
 function buildTowers(room) {
 
   var flags = room.find(FIND_FLAGS, { filter: (flag) => {
-      return flag.name.includes("FlagTower");
+      return flag.name.includes("Tower");
     },
   });
   console.log(`tower flags: ${flags.length}`);

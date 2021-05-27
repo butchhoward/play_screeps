@@ -161,7 +161,7 @@ function spawnSentinels(spawn) {
   }
 
   var flags = spawn.room.find(FIND_FLAGS, { filter: (flag) => {
-                      return flag.name.includes("FlagSentinel");
+                      return flag.name.includes("Sentinel");
                       },
                     });
   if (!flags || flags.length === 0) {
