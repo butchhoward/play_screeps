@@ -19,8 +19,9 @@ var roleBuilder = {
   run: function (creep) {
     var creepData = Memory.creeps[creep.name];
 
+    // creepData.building=true;
     updateActivity(creepData, creep);
-
+    // console.log(`Builder: ${creep.name} ${creepData.building} ${creepData.buildTargetId} ${creepData.harvestSourceId} ${creep.store.getFreeCapacity()} ${creep.store[RESOURCE_ENERGY]}`);
     if (creepData.building) {
       creepTools.goBuildSomething(creepData, creep);
     } 

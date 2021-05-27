@@ -3,6 +3,7 @@
 
 function cleanupAfterCreep(name) {
   let creepData = Memory.creeps[name];
+  let creep = Game.creeps[name];
   switch (creepData.role) {
     case "builder":
       if (creepData.heavy) {
@@ -25,7 +26,11 @@ function cleanupAfterCreep(name) {
         Memory.spawnEngine.upgraders--;
       }
       break;
-  }
+    case "sentinel":
+      //Sentinel Down! Send Backup!
+      creep.room.createFlag(creep.pos, `Sentinel-${Game.time}`, COLOR_YELLOW);
+      break;
+    }
   console.log(`Cleaning: ${name} H:${Memory.spawnEngine.harvesters} B:${Memory.spawnEngine.builders} U:${Memory.spawnEngine.upgraders} X:${Memory.spawnEngine.heavyBuilders}`);
 
 }
@@ -156,18 +161,32 @@ function spawnSentinels(spawn) {
   }
 
   var flags = room.find(FIND_FLAGS, { filter: (flag) => {
-      return flag.name.includes("FlagSentinel");
-    },
-  });
+                      return flag.name.includes("FlagSentinel");
+                      },
+                    });
   if (!flags || flags.length === 0) {
     return false;
+  }
+
+  var body = SENTINEL_BODY;
+  if (spawn.room.energyAvailable < energyNeeded(body)) {
+    body = [MOVE, TOUGH, TOUGH, ATTACK, ATTACK];
+    if (spawn.room.energyAvailable < energyNeeded(body)) {
+      body = [MOVE, TOUGH, ATTACK, ATTACK];
+      if (spawn.room.energyAvailable < energyNeeded(body)) {
+        body = [MOVE, TOUGH, ATTACK];
+        if (spawn.room.energyAvailable < energyNeeded(body)) {
+          return false;
+        }
+      }
+    }
   }
 
   for (let f in flags) {
     let flag = flag[f];
 
     const fakeCurrentCount=0;
-    if (spawnSomeKindOfCreepExactly(spawn1, fakeCurrentCount, flags.length, SENTINEL_BODY, {
+    if (spawnSomeKindOfCreepExactly(spawn1, fakeCurrentCount, flags.length, body, {
       memory: { role: "sentinel", pos: flag.pos },
     })) {
       flag.remove();

@@ -42,8 +42,8 @@ function findThingsUnderConstruction(room, structureType) {
 }
 
 
-function findAThingUnderConstruction(room) {
-  var targets = findThingsUnderConstruction(room, STRUCTURE_EXTENSION);
+function findAThingUnderConstruction(room, structureType) {
+  var targets = findThingsUnderConstruction(room, structureType);
   if (targets.length > 0) {
     return targets[0].id;
   }

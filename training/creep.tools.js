@@ -3,12 +3,15 @@ var sourcePicker = require("source.picker");
 
 
 function goBuildSomething(creepData, creep) {
+  // console.log(`goBuildSomething: ${creep.name}`);
+
   if (creepData.buildTargetId) {
     const site = Game.getObjectById(creepData.buildTargetId);
     if (!site) {
       creepData.buildTargetId = undefined;
     }
   }
+  // console.log(`goBuildSomething 1: ${creepData.buildTargetId}`);
 
   if (!creepData.buildTargetId) {
     const buildPickers = [ 
@@ -18,22 +21,28 @@ function goBuildSomething(creepData, creep) {
       sourcePicker.findRoadUnderConstruction,
     ];
     for (let b of buildPickers) {
+      // console.log(`goBuildSomething 2: ${b}`);
+
       creepData.buildTargetId = b(creep.room);
       if (creepData.buildTargetId) {
+        // console.log(`Builder Will Build: ${creepData.buildTargetId}`);
         break;
       }
     }
   }
+  // console.log(`goBuildSomething 3: ${creepData.buildTargetId}`);
 
   if (creepData.buildTargetId) {
     const target = Game.getObjectById(creepData.buildTargetId);
     if (!target)
     {
+      // console.log(`goBuildSomething 4: ${creepData.buildTargetId}`);
       creepData.buildTargetId = undefined;
       creepData.building = false;
       roleUpgrader.run(creep);
     }
     else {
+      // console.log(`GoBuild: ${target.structureType} you ${creep.name}`);
       var err = creep.build(target);
       switch (err) {
         case OK:
@@ -44,12 +53,14 @@ function goBuildSomething(creepData, creep) {
           });
           break;
         default:
+          // console.log(`goBuildSomething 5: ${creepData.buildTargetId}`);
           creepData.buildTargetId = undefined;
           break;
       }
     }
   } 
   else {
+    // console.log(`goBuildSomething 6: ${creepData.buildTargetId}`);
     roleUpgrader.run(creep);
   }
 }
