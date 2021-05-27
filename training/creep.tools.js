@@ -1,6 +1,14 @@
 var roleUpgrader = require("role.upgrader");
 var sourcePicker = require("source.picker");
 
+function findCreepsInArea(room, top, left, bottom, right) {
+  return room.lookForAtArea(LOOK_CREEPS,top, left, bottom, right,true);
+}
+
+function countCreepsInArea(room, top, left, bottom, right) {
+  return findCreepsInArea(room, top, left, bottom, right).length;
+}
+
 
 function goBuildSomething(creepData, creep) {
   // console.log(`goBuildSomething: ${creep.name}`);
@@ -65,6 +73,38 @@ function goBuildSomething(creepData, creep) {
   }
 }
 
+
+function moveToRallyPoint(creep) {
+  let flags = creep.room.find(FIND_FLAGS, { filter: (flag) => {
+    return flag.name.includes("FlagRally");
+  },
+  });
+  if (flags.length === 0) {
+    return;
+  }
+
+  let rally_point = flags[0];
+  creep.moveTo(rally_point, { visualizePathStyle: { stroke: "#00ff00" }, reusePath:15 });
+}
+function moveToHarvestSourceWhenNotCrowded(creep, source) {
+  
+  if (source) {
+    const region_size = 4;
+    const population = 8;
+    let left = source.pos.x - region_size;
+    let right = source.pos.x + region_size;
+    let top = source.pos.y + region_size;
+    let bottom = source.pos.y - region_size;
+    if (countCreepsInArea(creep.room, top, left, bottom, right) <= population ) {
+      if ( OK === creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" }, reusePath:15 })) {
+        return;
+      }
+    }
+  }
+
+  moveToRallyPoint(creep);
+}
+
 function goHarvesting(creepData, creep) {
   if ( !creepData.harvestSourceId) {
     creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
@@ -78,7 +118,7 @@ function goHarvesting(creepData, creep) {
           creepData.harvestSourceId = undefined;
           break;
         case ERR_NOT_IN_RANGE:
-          creep.moveTo(source, { visualizePathStyle: { stroke: "#ffcc00" }, reusePath:15 });
+          moveToHarvestSourceWhenNotCrowded(creep, source);
           break;
         default:
           creepData.harvestSourceId = undefined;
@@ -122,4 +162,6 @@ module.exports = {
   goTransferSomething, 
   goBuildSomething,
   goHarvesting,
+  countCreepsInArea,
+  findCreepsInArea,
 }
