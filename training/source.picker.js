@@ -30,6 +30,15 @@ function isSourceNearKeeper(room, sourceId) {
   return false;
 }
 
+function findThings(room, findType, opts, pos) {
+  var targets = room.find(findType, opts);
+  if (targets.length > 0 && pos) {
+    targets = _.sortBy(targets, s => pos.getRangeTo(s));
+  }
+  return targets;
+}
+
+
 function findThingsUnderConstruction(room, structureType, pos) {
   var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: (site) => {
@@ -43,6 +52,7 @@ function findThingsUnderConstruction(room, structureType, pos) {
   }
   return targets;
 }
+
 
 
 function findAThingUnderConstruction(room, structureType, pos) {
@@ -90,7 +100,7 @@ function findPreferredSourceNear(room, pos) {
   sources = _.sortBy(sources, s => pos.getRangeTo(s));
   for( let s in sources) {
     let id = sources[s].id;
-    if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 5) {
+    if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) <=8) {
       return id;
     }
   }
@@ -105,7 +115,7 @@ function findPreferredSource(room) {
   var sources = room.find(FIND_SOURCES_ACTIVE);
   for( let s in sources) {
     let id = sources[s].id;
-    if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) < 8) {
+    if (!isSourceNearKeeper(room, id) && countCreepsHarvestingSource(id) <= 8) {
       return id;
     }
   }
@@ -116,7 +126,7 @@ function findPreferredSource(room) {
   return undefined;
 }
 
-function findPreferredStructureForTransferOfHarvest(room) {
+function findPreferredStructureForTransferOfHarvest(room, pos) {
   var targets = room.find(FIND_STRUCTURES, {
     filter: (structure) => {
       return (
@@ -128,9 +138,15 @@ function findPreferredStructureForTransferOfHarvest(room) {
       );
     },
   });
+  if (targets.length > 0 && pos) {
+    targets = _.sortBy(targets, s => pos.getRangeTo(s));
+  }
 
   if (targets.length > 0) {
-    target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_EXTENSION; });
+    target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_TOWER; });
+    if (!target) {
+      target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_EXTENSION; });
+    }
     if (!target) {
       target = _.find(targets, function(structure) { return structure.structureType === STRUCTURE_SPAWN; });
     }
@@ -149,6 +165,7 @@ var sourcePicker = {
   findRoadUnderConstruction: findRoadUnderConstruction,
   findWallUnderConstruction: findWallUnderConstruction,
   findATowerUnderConstruction: findATowerUnderConstruction,
+  findThings: findThings,
 };
 
 module.exports = sourcePicker;

@@ -21,7 +21,7 @@ function setCreepTargets(creepData, creep) {
   }
 
   if (creepData.transferring && !creepData.transferTargetId) {
-    creepData.transferTargetId = sourcePicker.findPreferredStructureForTransferOfHarvest(creep.room);
+    creepData.transferTargetId = sourcePicker.findPreferredStructureForTransferOfHarvest(creep.room, creep.pos);
   }
 }
 
