@@ -89,7 +89,11 @@ function energyNeeded(body) {
 
 function spawnCreep(spawn, body, opts) {
   var newName = opts.memory.role + Game.time;
-  console.log(`Spawning: ${newName} H:${Memory.spawnEngine.harvesters} B:${Memory.spawnEngine.builders} U:${Memory.spawnEngine.upgraders} X:${Memory.spawnEngine.heavyBuilders}`);
+  console.log(`Spawning: ${newName}
+  H:${Memory.spawnEngine.harvesters}/${Memory.spawnEngine.minHarvesters}/${Memory.spawnEngine.maxHarvesters}
+  B:${Memory.spawnEngine.builders}/${Memory.spawnEngine.minBuilders}/${Memory.spawnEngine.maxBuilders}
+  U:${Memory.spawnEngine.upgraders}/${Memory.spawnEngine.minUpgraders}/${Memory.spawnEngine.maxUpgraders}
+  X:${Memory.spawnEngine.heavyBuilders}/${Memory.spawnEngine.minHeavyBuilders}/${Memory.spawnEngine.maxHeavyBuilders}`);
   let err = spawn.spawnCreep(body, newName, opts);
   if (err !== OK) {
     console.log(`failed to spawn ${newName} (${err}) need:${energyNeeded(body)} energyAvailable: ${spawn.room.energyAvailable}`);
@@ -306,7 +310,10 @@ function recheckMinimums(spawn) {
   let extensions = sourcePicker.findThings(spawn.room, FIND_MY_STRUCTURES, {filter: (structure) => { 
                                           return (structure.structureType === STRUCTURE_EXTENSION);
                                         }}).length;
-  Memory.spawnEngine.minHarvesters = (extensions * requires.htimes) + requires.hplus;
+  Memory.spawnEngine.minHarvesters = extensions + requires.hplus;
+  if ( Memory.spawnEngine.minHarvesters > Memory.spawnEngine.maxHarvesters) {
+    Memory.spawnEngine.maxHarvesters = Memory.spawnEngine.minHarvesters * requires.htimes;
+  }
 }
 
 function initMemorySpawnEngine(spawn) {
