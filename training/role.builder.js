@@ -15,13 +15,10 @@ function updateActivity(creepData, creep) {
 
 
 var roleBuilder = {
-  /** @param {Creep} creep **/
   run: function (creep) {
     var creepData = Memory.creeps[creep.name];
 
-    // creepData.building=true;
     updateActivity(creepData, creep);
-    // console.log(`Builder: ${creep.name} ${creepData.building?"Building":"Harvesting"} ${creepData.buildTargetId} ${creepData.harvestSourceId} ${creep.store.getFreeCapacity()} ${creep.store[RESOURCE_ENERGY]}`);
     if (creepData.building) {
       creepTools.goBuildSomething(creepData, creep);
     } 
