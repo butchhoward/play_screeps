@@ -23,11 +23,11 @@ function goBuildSomething(creepData, creep) {
     const buildPickers = [ 
       sourcePicker.findAnExtensionUnderConstruction,
       sourcePicker.findATowerUnderConstruction,
+      sourcePicker.findThingsNeedingRepair,
       sourcePicker.findWallUnderConstruction,
       sourcePicker.findRoadUnderConstruction,
     ];
     for (let b of buildPickers) {
-
       creepData.buildTargetId = b(creep.room, creep.pos);
       if (creepData.buildTargetId) {
         break;
@@ -37,7 +37,7 @@ function goBuildSomething(creepData, creep) {
 
   if (creepData.buildTargetId) {
     const target = Game.getObjectById(creepData.buildTargetId);
-    if (!target)
+    if (!target || (target.progressTotal >= target.progress))
     {
       creepData.buildTargetId = undefined;
       creepData.building = false;

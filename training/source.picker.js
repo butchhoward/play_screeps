@@ -38,6 +38,15 @@ function findThings(room, findType, opts, pos) {
   return targets;
 }
 
+function findThingsNeedingRepair(room, pos) {
+  var targets = room.find(FIND_MY_STRUCTURES, {filter: (structure) => { 
+                          return (structure.hits >= 0);
+                        }});
+  if (targets.length > 0 && pos) {
+    targets = _.sortBy(targets, s => s.hitsMax/s.hits);
+  }
+  return targets;
+}
 
 function findThingsUnderConstruction(room, structureType, pos) {
   var targets = room.find(FIND_MY_CONSTRUCTION_SITES, {
@@ -166,6 +175,7 @@ var sourcePicker = {
   findWallUnderConstruction: findWallUnderConstruction,
   findATowerUnderConstruction: findATowerUnderConstruction,
   findThings: findThings,
+  findThingsNeedingRepair: findThingsNeedingRepair,
 };
 
 module.exports = sourcePicker;
