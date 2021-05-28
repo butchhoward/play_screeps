@@ -44,9 +44,16 @@ function goBuildSomething(creepData, creep) {
       roleUpgrader.run(creep);
     }
     else {
-      var err = creep.build(target);
+      var err = ERR_INVALID_TARGET;
+      if (target instanceof ConstructionSite) {
+        err = creep.build(target);
+      }
+      else {
+        err = creep.repair(target);
+      }
       switch (err) {
         case OK:
+          console.log(`Repairing: ${target.structureType} ${target.id}`);
           break;
         case ERR_NOT_IN_RANGE:
           creep.moveTo(target, {
