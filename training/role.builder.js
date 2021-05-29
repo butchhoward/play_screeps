@@ -5,11 +5,11 @@ var creepTools = require("creep.tools")
 function updateActivity(creepData, creep) {
   if (creepData.building && creep.store[RESOURCE_ENERGY] === 0) {
     creepData.building = false;
-    creep.say("🔄 ");
+    creep.say("🔄B");
   }
   if (!creepData.building && creep.store.getFreeCapacity() === 0) {
     creepData.building = true;
-    creep.say("🚧 ");
+    creep.say("🚧B");
   }
 }
 

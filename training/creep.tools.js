@@ -23,7 +23,7 @@ function goBuildSomething(creepData, creep) {
     const buildPickers = [ 
       sourcePicker.findAnExtensionUnderConstruction,
       sourcePicker.findATowerUnderConstruction,
-      sourcePicker.findThingsNeedingRepair,
+      sourcePicker.findAThingNeedingRepair,
       sourcePicker.findWallUnderConstruction,
       sourcePicker.findRoadUnderConstruction,
     ];
