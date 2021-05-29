@@ -37,13 +37,7 @@ function goBuildSomething(creepData, creep) {
 
   if (creepData.buildTargetId) {
     const target = Game.getObjectById(creepData.buildTargetId);
-    if (!target || (target.progressTotal >= target.progress))
-    {
-      creepData.buildTargetId = undefined;
-      creepData.building = false;
-      roleUpgrader.run(creep);
-    }
-    else {
+    if (target && (target.progress < target.progressTotal)) {
       var err = ERR_INVALID_TARGET;
       if (target instanceof ConstructionSite) {
         err = creep.build(target);
@@ -53,7 +47,8 @@ function goBuildSomething(creepData, creep) {
       }
       switch (err) {
         case OK:
-          console.log(`Repairing: ${target.structureType} ${target.id}`);
+          creepData.building = false;
+          creepData.buildTargetId = undefined;
           break;
         case ERR_NOT_IN_RANGE:
           creep.moveTo(target, {
@@ -62,15 +57,16 @@ function goBuildSomething(creepData, creep) {
           break;
         default:
           creepData.buildTargetId = undefined;
+          creepData.building = false;    
           break;
       }
+      return;
     }
   } 
-  else {
-    roleUpgrader.run(creep);
-  }
-}
 
+  console.log(`buildSomething to upgrader`);
+  roleUpgrader.run(creep);
+}
 
 function moveToRallyPoint(creep) {
   let flags = creep.room.find(FIND_FLAGS, { filter: (flag) => {
@@ -107,27 +103,22 @@ function goHarvesting(creepData, creep) {
   if ( !creepData.harvestSourceId) {
     creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
   }
+
   const source = Game.getObjectById(creepData.harvestSourceId);
   if (source) {
-    if (source) {
-      let err = creep.harvest(source);
-      switch (err) {
-        case OK:
-          creepData.harvestSourceId = undefined;
-          break;
-        case ERR_NOT_IN_RANGE:
-          moveToHarvestSourceWhenNotCrowded(creep, source);
-          break;
-        default:
-          creepData.harvestSourceId = undefined;
-          break;
-      }
+    let err = creep.harvest(source);
+    switch (err) {
+      case OK:
+        break;
+      case ERR_NOT_IN_RANGE:
+        moveToHarvestSourceWhenNotCrowded(creep, source);
+        return;
+      default:
+        break;
     }
+  }
 
-  }
-  else {
-    creepData.harvestSourceId = undefined;
-  }
+  creepData.harvestSourceId = undefined;
 }
 
 function goTransferSomething(creepData, creep) {
