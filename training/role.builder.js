@@ -1,6 +1,5 @@
-var roleUpgrader = require("role.upgrader");
-var sourcePicker = require("source.picker");
-var creepTools = require("creep.tools")
+var creepTools = require("creep.tools");
+var roleHarvester = require("role.harvester");
 
 function updateActivity(creepData, creep) {
   if (creepData.building && creep.store[RESOURCE_ENERGY] === 0) {
@@ -16,7 +15,7 @@ function updateActivity(creepData, creep) {
 
 var roleBuilder = {
   run: function (creep) {
-    var creepData = Memory.creeps[creep.name];
+    var creepData = creep.memory;
 
     updateActivity(creepData, creep);
     if (creepData.building) {

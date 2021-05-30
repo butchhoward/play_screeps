@@ -297,23 +297,21 @@ function recheckMinimums(spawn) {
     return;
   }
   const level_requires = { 
-                           2: {htimes:1, hplus:2}, 
-                           3: {htimes:2, hplus:2}, 
-                           4: {htimes:2, hplus:2}, 
-                           5: {htimes:2, hplus:2}, 
-                           6: {htimes:2, hplus:2}, 
-                           7: {htimes:2, hplus:2}, 
-                           8: {htimes:2, hplus:2}, 
+                           2: {xtimes:1, min:5}, 
+                           3: {xtimes:2, min:6}, 
+                           4: {xtimes:2, min:10}, 
+                           5: {xtimes:1, min:10}, 
+                           6: {xtimes:1, min:15}, 
+                           7: {xtimes:1, min:25}, 
+                           8: {xtimes:1, min:30}, 
                          };
   let requires = level_requires[spawn.room.controller.level];
 
   let extensions = sourcePicker.findThings(spawn.room, FIND_MY_STRUCTURES, {filter: (structure) => { 
                                           return (structure.structureType === STRUCTURE_EXTENSION);
                                         }}).length;
-  Memory.spawnEngine.minHarvesters = extensions + requires.hplus;
-  if ( Memory.spawnEngine.minHarvesters > Memory.spawnEngine.maxHarvesters) {
-    Memory.spawnEngine.maxHarvesters = Memory.spawnEngine.minHarvesters * requires.htimes;
-  }
+  Memory.spawnEngine.minHarvesters = extensions + requires.min;
+  Memory.spawnEngine.maxHarvesters = extensions * requires.xtimes;
 }
 
 function initMemorySpawnEngine(spawn) {

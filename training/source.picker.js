@@ -174,6 +174,7 @@ function findPreferredStructureForTransferOfHarvest(room, pos) {
   return undefined;
 }
 
+
 var sourcePicker = {
   findSourceNear: findSourceNear ,
   findPreferredSourceNear: findPreferredSourceNear,

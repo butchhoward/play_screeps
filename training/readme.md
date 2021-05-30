@@ -42,7 +42,14 @@ Does not:
 * any of the advanced skills (mining, manufacturing, trading, etc.)
 
 
-## 
+
+## Notes
+
+This two sentence from the Creeps section of the Doc are **Important**:
+* Each body part (except MOVE) generates fatigue points when the creep moves
+* The creep cannot move when its fatigue is greater than zero.
+
+So: Do Not chain together API calls that try to cause the creep to move after any other actions which would cause the fatigue to be >0 (e.g. a creep has one MOVE part and one carry part and is moving over plain land; two moveTo() calls in a row is bad) 
 
 Todo:
 * Use some kind of Javascript Prototype / Objects to better structure the code

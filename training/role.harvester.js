@@ -1,5 +1,5 @@
-var sourcePicker = require("source.picker");
 var creepTools = require("creep.tools")
+var roleUpgrader = require("role.upgrader");
 
 function updateActivity(creepData, creep) {
   if (creepData.transferring && creep.store[RESOURCE_ENERGY] === 0) {
@@ -12,35 +12,16 @@ function updateActivity(creepData, creep) {
   }
 }
 
+function run(creep) {
+  var creepData = creep.memory;
 
-function setCreepTargets(creepData, creep) {
-  var creepData = Memory.creeps[creep.name];
-
-  if (!creepData.transferring && !creepData.harvestSourceId) {
-    creepData.harvestSourceId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
+  updateActivity(creepData, creep);
+  if (creepData.transferring) {
+    creepTools.goTransferSomething(creepData, creep);
   }
-
-  if (creepData.transferring && !creepData.transferTargetId) {
-    creepData.transferTargetId = sourcePicker.findPreferredStructureForTransferOfHarvest(creep.room, creep.pos);
+  else {
+    creepTools.goHarvesting(creepData, creep);
   }
 }
 
-var roleHarvester = {
-  /** @param {Creep} creep **/
-  run: function (creep) {
-    var creepData = Memory.creeps[creep.name];
-
-    updateActivity(creepData, creep);
-
-    setCreepTargets(creepData, creep);
-    if (creepData.transferring) {
-      creepTools.goTransferSomething(creepData, creep);
-    }
-    else {
-      creepTools.goHarvesting(creepData, creep);
-    }
-  },
-
-};
-
-module.exports = roleHarvester;
+module.exports = {run};
