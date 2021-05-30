@@ -3,6 +3,12 @@
 
 ## Handy Console Commands
 
+Local:
+```
+cp ./*.js "/Users/butchhoward/Library/Application Support/Screeps/scripts/screeps.com/default"/
+```
+
+In-Game:
 ```
 Game.rooms['E42S15'].energyAvailable
 Game.spawns['Spawn1'].spawnCreep([MOVE,WORK,CARRY], 'UpgraderManual', {memory: { role: "upgrader" }});
@@ -42,6 +48,21 @@ Does not:
 * any of the advanced skills (mining, manufacturing, trading, etc.)
 
 
+## Testing
+
+* Got nvm, node, npm installed
+    * use nvm curl installer
+    * `nvm install node`
+    * `nvm use 16.2.0`
+
+* Got jest installed in the project
+    * `pm install --save-dev jest`
+
+* Configured `package.json` to run tests
+* Got a silly test to pass 
+    *  `npm run test`
+
+* Now I can test locally
 
 ## Notes
 
