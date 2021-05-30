@@ -16,7 +16,7 @@ function isSourceNearKeeper(room, sourceId) {
   var keepers = room.find(FIND_HOSTILE_CREEPS, {
       filter:function(enemy){enemy.owner.username === 'Source Keeper'}
     });
-  if (keepers.length === 0) {
+  if (keepers.length == 0) {
     return false;
   }
 

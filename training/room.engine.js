@@ -34,9 +34,9 @@ function buildExtensions(room) {
   });
 
   var pos = new RoomPosition(0, 0, room.name);
-  if (extensions.length === 0) {
+  if (extensions.length == 0) {
     var spawns = room.find(FIND_MY_SPAWNS);
-    if (spawns.length === 0) {
+    if (spawns.length == 0) {
       return;
     }
     pos.x = spawns[0].pos.x;
@@ -103,7 +103,7 @@ function buildTowers(room) {
     },
   });
   console.log(`tower flags: ${flags.length}`);
-  if (!flags || flags.length === 0) {
+  if (!flags || flags.length == 0) {
     return;
   }
   for (let f in flags) {

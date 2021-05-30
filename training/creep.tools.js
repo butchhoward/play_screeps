@@ -23,7 +23,7 @@ function moveToRallyPoint(creep) {
                             },
                           });
   
-  if (flags.length === 0) {
+  if (flags.length == 0) {
     creep.memory.rallying = false;
     return false;
   }
@@ -34,8 +34,8 @@ function moveToRallyPoint(creep) {
     return false;
   }
 
-  var adjustmentX = getRandomInt(6) - 3;
-  var adjustmenty = getRandomInt(6) - 3;
+  var adjustmentX = getRandomInt(4) - 2;
+  var adjustmenty = getRandomInt(4) - 2;
   var nearRallyPos = new RoomPosition( rallyPoint.pos.x + adjustmentX, rallyPoint.pos.y + adjustmenty, rallyPoint.pos.roomName );
   creep.moveTo(nearRallyPos, { visualizePathStyle: { stroke: "#00ff00" }, reusePath:15 });
 
@@ -69,19 +69,19 @@ function goBuildSomething(creepData, creep) {
   if (!targetSite) {
     creepData.buildTargetId = findNewBuildTarget(creep);
     targetSite = Game.getObjectById(creepData.buildTargetId);
+    creepData.buildTargetId = targetSite ? targetSite.id : undefined;
   }
 
   if (targetSite) {
 
     if ( !creep.pos.inRangeTo(targetSite, 3)) {
-      creepData.building = false;
-      creepData.buildTargetId = targetSite.id;
       creep.moveTo(targetSite, {
         visualizePathStyle: { stroke: "#ffccbb" }, reusePath: 15
       });
       return true;
     }
 
+    let err = ERR_FULL;
     if (targetSite instanceof ConstructionSite) {
       if (targetSite.progress < targetSite.progressTotal) {
         creep.say("🚧 B");
@@ -94,8 +94,17 @@ function goBuildSomething(creepData, creep) {
         err = creep.repair(targetSite);
       }
     }
-    creepData.building = false;
-    creepData.buildTargetId = undefined;
+    switch (err) {
+    case OK:
+      return true;
+    case ERR_NOT_IN_RANGE:
+      break;
+    default:
+      creepData.building = false;
+      creepData.buildTargetId = undefined;
+      break;
+    }
+  
   }
   return false;
 }
@@ -130,7 +139,7 @@ function moveToHarvestSourceWhenNotCrowded(creep, source) {
   var regionCreeps = countCreepsInArea(creep.room, top, left, bottom, right);
   if ( regionCreeps >= sourceAccessPoints(source) ) {
     creep.memory.rallying = true;
-    return false;
+    return true;
   }
 
   creep.memory.rallying = false;
@@ -155,30 +164,27 @@ function goHarvesting(creepData, creep) {
   if (!source) {
     let newTargetId = sourcePicker.findPreferredSourceNear(creep.room, creep.pos);
     source = Game.getObjectById(newTargetId);
+    creepData.harvestSourceId = source ? source.id : undefined;
   }  
 
   if (source) {
-    let err;
     if ( !creep.pos.isNearTo(source)) {
-      return moveToHarvestSourceWhenNotCrowded(creep, source);
+      if (moveToHarvestSourceWhenNotCrowded(creep, source)) {
+        return true;
+      }
     }
 
-    err = creep.harvest(source);
+    const err = creep.harvest(source);
     switch (err) {
-      case OK:
-        creepData.harvestSourceId  = undefined;
-        creepData.harvesting = false;
-        break;
-      case ERR_NOT_IN_RANGE:
-        creepData.harvestSourceId  = source.id;
-        creepData.harvesting = true;
-        break;
-      default:
-        creepData.harvestSourceId  = undefined;
-        creepData.harvesting = false;
-        break;
+    case OK:
+      return true;
+    case ERR_NOT_IN_RANGE:
+      break;
+    default:
+      creepData.harvestSourceId  = undefined;
+      creepData.transferring = false;
+      break;
     }
-    return true;
   }
 
   return false;
@@ -192,20 +198,52 @@ function goTransferSomething(creepData, creep) {
 
   if (!target) {
     let newTargetId = sourcePicker.findPreferredStructureForTransferOfHarvest(creep.room, creep.pos);
+    console.log(`Transfer: ${creep.name}  newTargetId: ${newTargetId}`);
     target = Game.getObjectById(newTargetId);
+    creepData.transferTargetId = target ? target.id : undefined;
   }  
 
   if (target) {
     if (!creep.pos.isNearTo(target)) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa55" }, reusePath:15 });
-      creepData.transferring = true;
       creepData.transferId = target.id;
       return true;      
     }
 
-    creep.transfer(target, RESOURCE_ENERGY);
+    const err = creep.transfer(target, RESOURCE_ENERGY);
+    switch (err) {
+    case OK:
+      console.log(`Transferred: ${creep.name} targetId: ${target.id} creepStore: ${creep.store.getFreeCapacity()}`);
+      return true;
+    case ERR_NOT_IN_RANGE:
+      break;
+    default:
+      creepData.transferId  = undefined;
+      creepData.transferring = false;
+      break;
+    }
+  
   }
 
+  return false;
+}
+
+function goUpgrading(creepData, creep) {
+  if ( !creep.pos.inRangeTo(creep.room.controller, 3)) {
+    creep.moveTo(creep.room.controller, {visualizePathStyle: { stroke: "#ff8866" }, reusePath:15});
+    return true;
+  }
+
+  const err = creep.upgradeController(creep.room.controller);
+  switch(err) {
+    case OK:
+      return true;
+    case ERR_NOT_IN_RANGE:
+      break;
+    default:
+      creepData.upgrading = false;
+      break;
+  }
   return false;
 }
 
@@ -213,6 +251,7 @@ module.exports = {
   goTransferSomething, 
   goBuildSomething,
   goHarvesting,
+  goUpgrading,
   moveToRallyPoint,
   countCreepsInArea,
   findCreepsInArea,

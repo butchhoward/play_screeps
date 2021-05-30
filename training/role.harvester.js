@@ -2,11 +2,12 @@ var creepTools = require("creep.tools")
 var roleUpgrader = require("role.upgrader");
 
 function updateActivity(creepData, creep) {
-  if (creepData.transferring && creep.store[RESOURCE_ENERGY] === 0) {
+  if (creepData.transferring && creep.store[RESOURCE_ENERGY] == 0) {
     creepData.transferring = false;
     creep.say("🔄H");
   }
-  if (!creepData.transferring && creep.store.getFreeCapacity() === 0) {
+  //not transferring means harvesting
+  if (!creepData.transferring && creep.store.getFreeCapacity() == 0) {
     creepData.transferring = true;
     creep.say("↔︎");
   }

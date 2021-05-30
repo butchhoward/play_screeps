@@ -2,11 +2,11 @@ var creepTools = require("creep.tools");
 var roleHarvester = require("role.harvester");
 
 function updateActivity(creepData, creep) {
-  if (creepData.building && creep.store[RESOURCE_ENERGY] === 0) {
+  if (creepData.building && creep.store[RESOURCE_ENERGY] == 0) {
     creepData.building = false;
     creep.say("🔄B");
   }
-  if (!creepData.building && creep.store.getFreeCapacity() === 0) {
+  if (!creepData.building && creep.store.getFreeCapacity() == 0) {
     creepData.building = true;
     creep.say("🚧B");
   }

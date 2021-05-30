@@ -59,6 +59,11 @@ Todo:
 * Change so that not dpendent on the spawn being named "Spawn1"
 * Build Main Roads 2- or 3- wide (single width at least lays a track)
 
+* All creeps with carry and work parts can do any of (harvest|build|repair|upgrade)
+* Queue the creeps to the available sources and only dispatch one to harvest when one has finished harvesting
+    * somehow determine or guess the time from the queue head to the source to release the next harvester before one harvesting has actually finished. Try to time it so that the new harvester arrives as the full harvester pulls away
+* As a creep pulls away from the harvesting, assign it a task/role from (harvest|build|repair|upgrade)
+
 
 * Place extensions is a star pattern instead of a line
 ```

@@ -169,7 +169,7 @@ function spawnSentinels(spawn) {
                       return flag.name.includes("Sentinel");
                       },
                     });
-  if (!flags || flags.length === 0) {
+  if (!flags || flags.length == 0) {
     return false;
   }
 
