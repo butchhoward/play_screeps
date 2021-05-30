@@ -64,7 +64,7 @@ function buildExtensions(room) {
 }
 
 function layRoadBetween(room, startPos, endPos) {
-  console.log("Layroad between " + startPos + " and " + endPos);
+  console.log("Lay road between " + startPos + " and " + endPos);
   var path = startPos.findPathTo(endPos);
   for (let p in path) {
     const pos = path[p];

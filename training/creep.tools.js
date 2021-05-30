@@ -1,4 +1,3 @@
-// var roleUpgrader = require("role.upgrader");
 var sourcePicker = require("source.picker");
 
 function findCreepsInArea(room, top, left, bottom, right) {
@@ -99,6 +98,9 @@ function goBuildSomething(creepData, creep) {
       return true;
     case ERR_NOT_IN_RANGE:
       break;
+    case ERR_FULL:
+      creepData.buildTargetId = undefined;
+      break;
     default:
       creepData.building = false;
       creepData.buildTargetId = undefined;
@@ -180,9 +182,10 @@ function goHarvesting(creepData, creep) {
       return true;
     case ERR_NOT_IN_RANGE:
       break;
+    case ERR_TIRED:
+      break;
     default:
       creepData.harvestSourceId  = undefined;
-      creepData.transferring = false;
       break;
     }
   }
@@ -198,7 +201,6 @@ function goTransferSomething(creepData, creep) {
 
   if (!target) {
     let newTargetId = sourcePicker.findPreferredStructureForTransferOfHarvest(creep.room, creep.pos);
-    console.log(`Transfer: ${creep.name}  newTargetId: ${newTargetId}`);
     target = Game.getObjectById(newTargetId);
     creepData.transferTargetId = target ? target.id : undefined;
   }  
@@ -206,19 +208,20 @@ function goTransferSomething(creepData, creep) {
   if (target) {
     if (!creep.pos.isNearTo(target)) {
       creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa55" }, reusePath:15 });
-      creepData.transferId = target.id;
       return true;      
     }
 
     const err = creep.transfer(target, RESOURCE_ENERGY);
     switch (err) {
     case OK:
-      console.log(`Transferred: ${creep.name} targetId: ${target.id} creepStore: ${creep.store.getFreeCapacity()}`);
       return true;
     case ERR_NOT_IN_RANGE:
       break;
+    case ERR_FULL:
+      creepData.transferTargetId  = undefined;
+      break;
     default:
-      creepData.transferId  = undefined;
+      creepData.transferTargetId  = undefined;
       creepData.transferring = false;
       break;
     }
