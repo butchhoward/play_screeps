@@ -5,7 +5,7 @@
 
 Local:
 ```
-cp ./*.js "/Users/butchhoward/Library/Application Support/Screeps/scripts/screeps.com/default"/
+cp ./src/*.js "/Users/butchhoward/Library/Application Support/Screeps/scripts/screeps.com/default"/
 ```
 
 In-Game:
