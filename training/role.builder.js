@@ -1,5 +1,4 @@
 var creepTools = require("creep.tools");
-var roleHarvester = require("role.harvester");
 
 function updateActivity(creepData, creep) {
   if (creepData.building && creep.store[RESOURCE_ENERGY] == 0) {

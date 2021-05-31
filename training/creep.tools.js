@@ -8,8 +8,9 @@ function countCreepsInArea(room, top, left, bottom, right) {
   return findCreepsInArea(room, top, left, bottom, right).length;
 }
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
+function getRandomInt(min, max) {
+  const num = Math.floor(Math.random() * (max - min + 1)) + min;
+  return num;
 }
 
 function moveToRallyPoint(creep) {
@@ -33,8 +34,8 @@ function moveToRallyPoint(creep) {
     return false;
   }
 
-  var adjustmentX = getRandomInt(4) - 2;
-  var adjustmenty = getRandomInt(4) - 2;
+  var adjustmentX = getRandomInt(-2, 2);
+  var adjustmenty = getRandomInt(-2, 2);
   var nearRallyPos = new RoomPosition( rallyPoint.pos.x + adjustmentX, rallyPoint.pos.y + adjustmenty, rallyPoint.pos.roomName );
   creep.moveTo(nearRallyPos, { visualizePathStyle: { stroke: "#00ff00" }, reusePath:15 });
 
@@ -133,13 +134,15 @@ function moveToHarvestSourceWhenNotCrowded(creep, source) {
     return false;
   }
 
-  const region_around = 1; // range out 2 steps in each direction, so a 3x3 area
+  const region_around = 2; // range out 2 steps in each direction, so a 5x5 area
   let left = source.pos.x - region_around;
   let right = source.pos.x + region_around;
   let bottom = source.pos.y + region_around;
   let top = source.pos.y - region_around;
-  var regionCreeps = countCreepsInArea(creep.room, top, left, bottom, right);
-  if ( regionCreeps >= sourceAccessPoints(source) ) {
+  var regionCreeps = findCreepsInArea(creep.room, top, left, bottom, right);
+  const isInRegion = _.find(regionCreeps, (c)=>{return c.id==creep.id;});
+  // console.log(`Rallying ${regionCreeps.length} ${isInRegion}`);
+  if ( (regionCreeps.length >= 2*sourceAccessPoints(source)) && !isInRegion) {
     creep.memory.rallying = true;
     return true;
   }

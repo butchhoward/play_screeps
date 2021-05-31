@@ -1,5 +1,4 @@
 var creepTools = require("creep.tools")
-var roleUpgrader = require("role.upgrader");
 
 function updateActivity(creepData, creep) {
   if (creepData.transferring && creep.store[RESOURCE_ENERGY] == 0) {

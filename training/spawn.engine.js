@@ -29,7 +29,7 @@ function cleanupAfterCreep(name) {
       break;
     case "sentinel":
       //Sentinel Down! Send Backup!
-      // Game.rooms[creepData.pos.roomName].createFlag(creepData.pos.x, creepData.pos.y, `Sentinel-${Game.time}`, COLOR_YELLOW);
+      Game.rooms[creepData.pos.roomName].createFlag(creepData.pos.x, creepData.pos.y, `Sentinel-${Game.time}`, COLOR_YELLOW);
       break;
     }
   console.log(`Cleaning: ${name} H:${Memory.spawnEngine.harvesters} B:${Memory.spawnEngine.builders} U:${Memory.spawnEngine.upgraders} X:${Memory.spawnEngine.heavyBuilders}`);
@@ -316,7 +316,7 @@ function recheckMinimums(spawn) {
 
 function initMemorySpawnEngine(spawn) {
   if ("spawnEngine" in Memory) {
-    recheckMinimums(spawn);
+    // recheckMinimums(spawn);
     return;
   }
 
