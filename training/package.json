@@ -1,6 +1,7 @@
 {
     "scripts": {
-        "test": "jest"
+        "test": "jest",
+        "build": "rm -r dist; mkdir -p dist; cp src/debug/*.js dist; cp src/*.js dist"
     },
     "devDependencies": {
         "jest": "^27.0.3"
