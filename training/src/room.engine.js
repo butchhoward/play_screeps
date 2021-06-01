@@ -1,13 +1,5 @@
 var sourcePicker = require("source.picker");
-
-function getCurrentRoom() {
-  var room;
-  for (let roomName in Game.rooms) {
-    room = Game.rooms[roomName];
-    break;
-  }
-  return room;
-}
+var gameTools = require('./game.tools');
 
 function buildExtensions(room) {
   if (!room  || !room.name) {
@@ -171,7 +163,7 @@ var roomEngine = {
       Memory.roomEngine = {};
     }
 
-    var room = getCurrentRoom();
+    var room = gameTools.getCurrentRoom();
     if (!room) {
       console.log("room undefined");
       return false;
